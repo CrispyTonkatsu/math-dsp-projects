@@ -38,3 +38,9 @@ endif()
 add_executable(hw1 ./src/main.cpp)
 target_link_libraries(hw1 project_warnings)
 
+enable_testing()
+add_executable(test-hw1 ./tests/test-main.cpp)
+target_include_directories(test-hw1 PRIVATE include)
+target_link_libraries(test-hw1 PRIVATE project_warnings)
+
+add_test(NAME unit-tests COMMAND test-hw1)

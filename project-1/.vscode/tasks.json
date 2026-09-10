@@ -24,6 +24,17 @@
       "label": "Project: Run",
       "command": "./build/hw1",
       "dependsOn": ["CMake: Build"]
+    },
+    {
+      "type": "shell",
+      "label": "Project: Test",
+      "command": "ctest",
+      "args": ["--test-dir build", "--output-on-failure"],
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "dependsOn": ["CMake: Build"]
     }
   ]
 }
