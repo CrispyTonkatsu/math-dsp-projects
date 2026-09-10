@@ -1,0 +1,29 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "shell",
+      "label": "CMake: Configure",
+      "command": "cmake",
+      "args": ["-B", "build"],
+      "group": "none"
+    },
+    {
+      "type": "shell",
+      "label": "CMake: Build",
+      "command": "cmake",
+      "args": ["--build", "build"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "dependsOn": ["CMake: Configure"]
+    },
+    {
+      "type": "shell",
+      "label": "Project: Run",
+      "command": "./build/hw1",
+      "dependsOn": ["CMake: Build"]
+    }
+  ]
+}
