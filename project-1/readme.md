@@ -11,3 +11,15 @@ To build the project:
 cmake --build build
 ``
 Then run the binaries generated in the `./build/` directory.
+
+## Accepted strings:
+The accepted formats for the numbers are:
+- $a + bi$
+- $bi + a$
+- $a$
+- $bi$
+- $a - bi$
+- $-a + bi$
+- $-a - bi$
+
+Where $a, b \in R$

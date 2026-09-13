@@ -1,3 +1,8 @@
+#pragma once
+
+#include <optional>
+#include <string_view>
+
 class Complex {
   double real{0};
   double complex{0};
@@ -15,6 +20,7 @@ public:
   Complex &operator=(Complex &&rhs) = default;
 
   // Custom Constructors
+  static std::optional<Complex> from_string(std::string_view string);
   static Complex from_cartesian(double real, double complex);
   static Complex from_polar(double angle, double radius);
 
@@ -33,6 +39,9 @@ public:
 
   Complex operator*(const Complex &other) const;
   Complex operator/(const Complex &other) const;
+
+  // Utilities
+  std::string to_string() const;
 };
 
 inline Complex operator*(double scalar, const Complex &complex) {

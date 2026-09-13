@@ -1,5 +1,11 @@
 #include "complex.hpp"
 #include <cmath>
+#include <string>
+
+std::optional<Complex> from_string(std::string_view) {
+  // TODO: Parsing the complex number
+  return std::nullopt;
+}
 
 Complex Complex::from_cartesian(double real, double complex) {
   Complex output;
@@ -57,4 +63,8 @@ Complex Complex::operator/(const Complex &other) const {
   const double denominator{1.0 / magnitude_squared()};
 
   return numerator * denominator;
+}
+
+std::string Complex::to_string() const {
+  return std::to_string(real) + " " + std::to_string(complex) + "i";
 }
