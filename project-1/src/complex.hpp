@@ -1,13 +1,12 @@
 #pragma once
 
-#include <optional>
-#include <string_view>
+#include <string>
 
 class Complex {
   double real{0};
   double complex{0};
 
-  // The rule of 5
+  // The rule of 5 (Being explicit because I find it helpful)
   Complex() = default;
 
 public:
@@ -20,7 +19,6 @@ public:
   Complex &operator=(Complex &&rhs) = default;
 
   // Custom Constructors
-  static std::optional<Complex> from_string(std::string_view string);
   static Complex from_cartesian(double real, double complex);
   static Complex from_polar(double angle, double radius);
 
@@ -41,7 +39,12 @@ public:
   Complex operator/(const Complex &other) const;
 
   // Utilities
+  // TODO: Add a precision argument
   std::string to_string() const;
+
+  // Unit test functions
+  // This will check if they're exactly the same value
+  bool operator==(const Complex &other) const;
 };
 
 inline Complex operator*(double scalar, const Complex &complex) {

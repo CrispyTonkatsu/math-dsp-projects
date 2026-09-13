@@ -2,11 +2,6 @@
 #include <cmath>
 #include <string>
 
-std::optional<Complex> from_string(std::string_view) {
-  // TODO: Parsing the complex number
-  return std::nullopt;
-}
-
 Complex Complex::from_cartesian(double real, double complex) {
   Complex output;
   output.real = real;
@@ -66,5 +61,9 @@ Complex Complex::operator/(const Complex &other) const {
 }
 
 std::string Complex::to_string() const {
-  return std::to_string(real) + " " + std::to_string(complex) + "i";
+  return std::to_string(real) + "+" + std::to_string(complex) + "i";
+}
+
+bool Complex::operator==(const Complex &other) const {
+  return real == other.real && complex == other.complex;
 }

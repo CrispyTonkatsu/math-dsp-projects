@@ -35,7 +35,7 @@ else()
 	)
 endif()
 
-add_library(complex-number ./src/complex.cpp)
+add_library(complex-number ./src/complex.cpp ./src/parser.cpp)
 target_include_directories(complex-number PUBLIC ./src)
 target_link_libraries(complex-number project_warnings)
 
@@ -46,6 +46,6 @@ target_link_libraries(hw1 project_warnings complex-number)
 enable_testing()
 add_executable(test-hw1 ./tests/test-main.cpp)
 target_include_directories(test-hw1 PRIVATE ./src)
-target_link_libraries(test-hw1 PRIVATE project_warnings)
+target_link_libraries(test-hw1 PRIVATE project_warnings complex-number)
 
 add_test(NAME unit-tests COMMAND test-hw1)
