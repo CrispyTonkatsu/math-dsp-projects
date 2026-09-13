@@ -22,13 +22,23 @@ public:
   Complex conjugate() const;
   Complex operator-() const;
 
+  double magnitude() const;
+  double magnitude_squared() const;
+
   Complex operator+(const Complex &other) const;
   Complex operator-(const Complex &other) const;
 
+  Complex operator*(const double scalar) const;
+  Complex operator/(const double scalar) const;
+
   Complex operator*(const Complex &other) const;
   Complex operator/(const Complex &other) const;
-
-  // TODO: Finish the following:
-  // - Division
-  // - Magnitude 
 };
+
+inline Complex operator*(double scalar, const Complex &complex) {
+  return complex * scalar;
+}
+
+inline Complex operator/(double scalar, const Complex &complex) {
+  return complex / scalar;
+}

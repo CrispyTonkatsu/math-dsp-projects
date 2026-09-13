@@ -21,12 +21,27 @@ Complex Complex::conjugate() const { return from_cartesian(real, -complex); }
 
 Complex Complex::operator-() const { return from_cartesian(-real, -complex); }
 
+double Complex::magnitude() const { return std::sqrt(magnitude_squared()); }
+
+double Complex::magnitude_squared() const {
+  return real * real + complex * complex;
+}
+
 Complex Complex::operator+(const Complex &other) const {
   return from_cartesian(real + other.real, complex + other.complex);
 }
 
 Complex Complex::operator-(const Complex &other) const {
   return from_cartesian(real - other.real, complex - other.complex);
+}
+
+Complex Complex::operator*(const double scalar) const {
+  return from_cartesian(real * scalar, complex * scalar);
+}
+
+Complex Complex::operator/(const double scalar) const {
+  const double reciprocal{1.0 / scalar};
+  return from_cartesian(real * reciprocal, complex * reciprocal);
 }
 
 Complex Complex::operator*(const Complex &other) const {
@@ -36,7 +51,10 @@ Complex Complex::operator*(const Complex &other) const {
 }
 
 Complex Complex::operator/(const Complex &other) const {
-  // TODO: Left off here
+  const Complex numerator{other * this->conjugate()};
 
-  return other;
+  // Taking advantage of z*z_conjugate = a^2 + b^2 for z = a + bi
+  const double denominator{1.0 / magnitude_squared()};
+
+  return numerator * denominator;
 }
