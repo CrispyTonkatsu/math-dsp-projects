@@ -4,6 +4,7 @@
 #include <charconv>
 #include <iostream>
 #include <optional>
+#include <ostream>
 #include <string_view>
 #include <variant>
 
@@ -109,17 +110,77 @@ complex_parser::parse_cartesian(std::string_view string) {
             [](const NumberToken &real, const OperatorToken &op,
                const NumberToken &complex,
                const ImaginaryUnitToken &) -> std::optional<Complex> {
-              return parse_complete(real, true, op, complex, true);
+              return parse_a_bi(real, true, op, complex, true);
             },
 
             [](const NumberToken &complex, const ImaginaryUnitToken &,
                const OperatorToken &op,
                const NumberToken &real) -> std::optional<Complex> {
-              return parse_complete(real, true, op, complex, true);
+              return parse_bi_a(complex, true, op, real, true);
             },
 
             [tokens](const auto &, const auto &, const auto &,
                      const auto &) -> std::optional<Complex> {
+              return print_error("Invalid Number", tokens);
+            },
+        },
+        tokens);
+
+  case 5:
+    return TokenListVisit<5>(
+        TokenMatcher{
+            [](const OperatorToken &op0, const NumberToken &real,
+               const OperatorToken &op1, const NumberToken &complex,
+               const ImaginaryUnitToken &) -> std::optional<Complex> {
+              return parse_a_bi(real, op0.character == '+', op1, complex, true);
+            },
+
+            [](const NumberToken &real, const OperatorToken &op0,
+               const OperatorToken &op1, const NumberToken &complex,
+               const ImaginaryUnitToken &) -> std::optional<Complex> {
+              return parse_a_bi(real, true, op0, complex, op1.character == '+');
+            },
+
+            [](const OperatorToken &op0, const NumberToken &complex,
+               const ImaginaryUnitToken &, const OperatorToken &op1,
+               const NumberToken &real) -> std::optional<Complex> {
+              return parse_bi_a(complex, op0.character == '+', op1, real, true);
+            },
+
+            [](const NumberToken &complex, const ImaginaryUnitToken &,
+               const OperatorToken &op0, const OperatorToken &op1,
+               const NumberToken &real) -> std::optional<Complex> {
+              return parse_bi_a(complex, true, op0, real, op1.character == '+');
+            },
+
+            [tokens](const auto &, const auto &, const auto &, const auto &,
+                     const auto &) -> std::optional<Complex> {
+              return print_error("Invalid Number", tokens);
+            },
+        },
+        tokens);
+
+  case 6:
+    return TokenListVisit<6>(
+        TokenMatcher{
+            [](const OperatorToken &op0, const NumberToken &real,
+               const OperatorToken &op1, const OperatorToken &op2,
+               const NumberToken &complex,
+               const ImaginaryUnitToken &) -> std::optional<Complex> {
+              return parse_a_bi(real, op0.character == '+', op1, complex,
+                                op2.character == '+');
+            },
+
+            [](const OperatorToken &op0, const NumberToken &complex,
+               const ImaginaryUnitToken &, const OperatorToken &op1,
+               const OperatorToken &op2,
+               const NumberToken &real) -> std::optional<Complex> {
+              return parse_bi_a(complex, op0.character == '+', op1, real,
+                                op2.character == '+');
+            },
+
+            [tokens](const auto &, const auto &, const auto &, const auto &,
+                     const auto &, const auto &) -> std::optional<Complex> {
               return print_error("Invalid Number", tokens);
             },
         },
@@ -145,24 +206,50 @@ std::optional<Complex> complex_parser::parse_op_num(const OperatorToken &op,
   return number_opt.value();
 }
 
-std::optional<Complex> complex_parser::parse_complete(
-    const NumberToken &real, bool positive_real, const OperatorToken &op,
-    const NumberToken &complex, bool positive_complex) {
+std::optional<Complex> complex_parser::parse_a_bi(const NumberToken &real,
+                                                  bool positive_real,
+                                                  const OperatorToken &op,
+                                                  const NumberToken &complex,
+                                                  bool positive_complex) {
   std::optional<Complex> real_opt{real.to_complex(true)};
   std::optional<Complex> complex_opt{complex.to_complex(false)};
 
   if (!real_opt.has_value() || !complex_opt.has_value()) {
+    std::cout << "me when";
     return std::nullopt;
   }
 
   Complex real_value{real_opt.value() * (positive_real ? 1 : -1)};
-  Complex complex_value{real_opt.value() * (positive_complex ? 1 : -1)};
+  Complex complex_value{complex_opt.value() * (positive_complex ? 1 : -1)};
 
   if (op.character == '-') {
     return real_value - complex_value;
   }
 
   return real_value + complex_value;
+}
+
+std::optional<Complex> complex_parser::parse_bi_a(const NumberToken &complex,
+                                                  bool positive_complex,
+                                                  const OperatorToken &op,
+                                                  const NumberToken &real,
+                                                  bool positive_real) {
+  std::optional<Complex> real_opt{real.to_complex(true)};
+  std::optional<Complex> complex_opt{complex.to_complex(false)};
+
+  if (!real_opt.has_value() || !complex_opt.has_value()) {
+    std::cout << "me when";
+    return std::nullopt;
+  }
+
+  Complex real_value{real_opt.value() * (positive_real ? 1 : -1)};
+  Complex complex_value{complex_opt.value() * (positive_complex ? 1 : -1)};
+
+  if (op.character == '-') {
+    return complex_value - real_value;
+  }
+
+  return complex_value + real_value;
 }
 
 std::optional<double> complex_parser::NumberToken::to_number() const {
@@ -251,9 +338,7 @@ complex_parser::tokenize(std::string_view string) {
     }
 
     if (failed) {
-      std::cerr << "[Tokenizer] Invalid string: " << string.substr(0, index - 1)
-                << " From here-> " << string[index]
-                << string.substr(index, string.length() - index) << std::endl;
+      std::cerr << "[Tokenizer] Invalid string: " << string << std::endl;
       return std::nullopt;
     }
   }

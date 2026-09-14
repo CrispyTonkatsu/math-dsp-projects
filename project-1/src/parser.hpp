@@ -31,11 +31,15 @@ std::optional<Complex> parse_cartesian(std::string_view string);
 std::optional<Complex> parse_op_num(const OperatorToken &op,
                                     const NumberToken &num, bool is_real);
 
-std::optional<Complex> parse_complete(const NumberToken &real,
-                                      bool positive_real,
-                                      const OperatorToken &op,
-                                      const NumberToken &complex,
-                                      bool positive_complex);
+std::optional<Complex> parse_a_bi(const NumberToken &real, bool positive_real,
+                                  const OperatorToken &op,
+                                  const NumberToken &complex,
+                                  bool positive_complex);
+
+std::optional<Complex> parse_bi_a(const NumberToken &complex,
+                                  bool positive_complex,
+                                  const OperatorToken &op,
+                                  const NumberToken &real, bool positive_real);
 
 template <class... Ts> struct TokenMatcher : Ts... {
   using Ts::operator()...;

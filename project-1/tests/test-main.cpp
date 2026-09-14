@@ -25,9 +25,27 @@ int main() {
   std::cout << complex_parser::parse_cartesian("-1i")->to_string() << std::endl;
 
   // cases with 4 tokens
+  std::cout << complex_parser::parse_cartesian("1+1i")->to_string()
+            << std::endl;
   std::cout << complex_parser::parse_cartesian("1-1i")->to_string()
             << std::endl;
   std::cout << complex_parser::parse_cartesian("1i-1")->to_string()
+            << std::endl;
+
+  // cases with 5 tokens
+  std::cout << complex_parser::parse_cartesian("-1-1i")->to_string()
+            << std::endl;
+  std::cout << complex_parser::parse_cartesian("-1i-1")->to_string()
+            << std::endl;
+  std::cout << complex_parser::parse_cartesian("1i--1")->to_string()
+            << std::endl;
+  std::cout << complex_parser::parse_cartesian("1--1i")->to_string()
+            << std::endl;
+
+  // cases with 6 tokens
+  std::cout << complex_parser::parse_cartesian("+1--1i")->to_string()
+            << std::endl;
+  std::cout << complex_parser::parse_cartesian("+1i--1")->to_string()
             << std::endl;
 
   return 0;
