@@ -35,7 +35,11 @@ else()
 	)
 endif()
 
-add_library(complex-number ./src/complex.cpp ./src/parser.cpp)
+add_library(complex-number
+	./src/complex.cpp
+	./src/parser.cpp
+	./src/tokenizer.cpp
+)
 target_include_directories(complex-number PUBLIC ./src)
 target_link_libraries(complex-number project_warnings)
 

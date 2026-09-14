@@ -1,98 +1,152 @@
 #pragma once
 
-#include <cstddef>
 #include <optional>
-#include <stdexcept>
-#include <string_view>
-#include <utility>
-#include <variant>
-#include <vector>
 
-#include "complex.hpp"
+#include "tokenizer.hpp"
 
-namespace complex_parser {
-struct NumberToken {
-  std::string_view text;
+class TokenCursor {
+  std::size_t position{0};
+  const TokenList &tokens;
 
-  std::optional<double> to_number() const;
-  std::optional<Complex> to_complex(bool is_real) const;
-};
+public:
+  TokenCursor(const TokenList &tokens);
 
-struct OperatorToken {
-  char character;
-};
+  std::size_t get_position() const;
 
-struct ImaginaryUnitToken {
-  char character;
-};
+  void restore(std::size_t new_position);
 
-std::optional<Complex> parse_cartesian(std::string_view string);
+  template <typename T> const T *peek() const {
+    if (is_end()) {
+      return nullptr;
+    }
 
-std::optional<Complex> parse_op_num(const OperatorToken &op,
-                                    const NumberToken &num, bool is_real);
+    if (!std::holds_alternative<T>(tokens[position])) {
+      return nullptr;
+    }
 
-std::optional<Complex> parse_a_bi(const NumberToken &real, bool positive_real,
-                                  const OperatorToken &op,
-                                  const NumberToken &complex,
-                                  bool positive_complex);
-
-std::optional<Complex> parse_bi_a(const NumberToken &complex,
-                                  bool positive_complex,
-                                  const OperatorToken &op,
-                                  const NumberToken &real, bool positive_real);
-
-template <class... Ts> struct TokenMatcher : Ts... {
-  using Ts::operator()...;
-};
-template <class... Ts> TokenMatcher(Ts...) -> TokenMatcher<Ts...>;
-
-using TokenVariant =
-    std::variant<NumberToken, OperatorToken, ImaginaryUnitToken>;
-
-using TokenList = std::vector<TokenVariant>;
-
-template <std::size_t N, typename F, std::size_t... Is>
-auto TokenListVisitImpl(F &&visitor, const TokenList &tokens,
-                        std::integer_sequence<std::size_t, Is...>) {
-  if (tokens.size() != N) {
-    throw std::runtime_error("Token count mismatch for pattern match");
+    return &std::get<T>(tokens[position]);
   }
 
-  return std::visit(std::forward<F>(visitor), tokens[Is]...);
-}
+  void consume();
 
-template <std::size_t N, typename F>
-auto TokenListVisit(F &&visitor, const TokenList &tokens) {
-  return TokenListVisitImpl<N>(std::forward<F>(visitor), tokens,
-                               std::make_integer_sequence<std::size_t, N>());
-}
-
-bool is_valid_char(char character);
-bool is_number_char(char character);
-bool is_operator_char(char character);
-bool is_imaginary_char(char character);
-
-std::optional<TokenList> tokenize(std::string_view string);
-
-struct TokenResult {
-  TokenVariant token;
-  std::size_t consumed_count{0};
-  bool append_token{true};
+  bool is_end() const;
 };
 
-using TokenizerFunc = std::optional<TokenResult> (*)(std::string_view string,
-                                                     std::size_t start_index);
+template <typename T, typename F> class Parser {
+  F parser_fn;
 
-std::optional<TokenResult> try_skip_whitespace(std::string_view string,
-                                               std::size_t start_index);
+public:
+  using return_type = T;
 
-std::optional<TokenResult> try_token_imaginary(std::string_view string,
-                                               std::size_t start_index);
+  explicit Parser(F fn) : parser_fn(std::move(fn)) {}
 
-std::optional<TokenResult> try_token_number(std::string_view string,
-                                            std::size_t start_index);
+  std::optional<T> parse(TokenCursor &cursor) const {
+    return parser_fn(cursor);
+  }
+};
 
-std::optional<TokenResult> try_token_operator(std::string_view string,
-                                              std::size_t start_index);
+template <typename T, typename F> static auto make_parser(F fn) {
+  return Parser<T, F>(std::move(fn));
+}
 
-} // namespace complex_parser
+template <typename P1, typename P2> auto sequence(const P1 &p1, const P2 &p2) {
+  using T1 = typename P1::return_type;
+  using T2 = typename P2::return_type;
+
+  return make_parser<std::pair<T1, T2>>(
+      [p1, p2](TokenCursor &cursor) -> std::optional<std::pair<T1, T2>> {
+        const std::size_t checkpoint{cursor.get_position()};
+
+        auto res1{p1.parse(cursor)};
+        if (!res1) {
+          cursor.restore(checkpoint);
+          return std::nullopt;
+        }
+
+        auto res2{p2.parse(cursor)};
+        if (!res2) {
+          cursor.restore(checkpoint);
+          return std::nullopt;
+        }
+
+        return std::make_pair(*res1, *res2);
+      });
+}
+
+template <typename P> auto optional(const P &parser) {
+  using T = typename P::return_type;
+
+  return make_parser<std::optional<T>>(
+      [parser](TokenCursor &cursor) -> std::optional<std::optional<T>> {
+        std::size_t checkpoint{cursor.get_position()};
+
+        auto result{parser.parse(cursor)};
+        if (result) {
+          return result;
+        }
+
+        cursor.restore(checkpoint);
+
+        return std::optional<T>(std::nullopt);
+      });
+}
+
+template <typename P, typename F> auto map(const P &parser, F mapper) {
+  using OldT = typename P::return_type;
+
+  using NewT = std::invoke_result_t<F, OldT>;
+
+  return make_parser<NewT>(
+      [parser, mapper](TokenCursor &cursor) -> std::optional<NewT> {
+        auto result{parser.parse(cursor)};
+
+        if (!result) {
+          return std::nullopt;
+        }
+
+        return mapper(*result);
+      });
+}
+
+template <typename P1, typename P2> auto alt(const P1 &p1, const P2 &p2) {
+  using T = typename P1::return_type;
+  static_assert(std::is_same_v<T, typename P2::return_type>,
+                "alts must both return the same type");
+
+  return make_parser<T>([p1, p2](TokenCursor &cursor) -> std::optional<T> {
+    std::size_t checkpoint{cursor.get_position()};
+
+    auto res1{p1.parse(cursor)};
+    if (res1) {
+      return *res1;
+    }
+
+    cursor.restore(checkpoint);
+
+    auto res2{p2.parse(cursor)};
+    if (res2) {
+      return *res2;
+    }
+
+    cursor.restore(checkpoint);
+
+    return std::nullopt;
+  });
+}
+
+auto match_number();
+auto match_op(char character);
+auto match_i();
+
+auto match_sign();
+auto match_signed_number();
+auto match_imaginary_number();
+
+auto match_a();
+auto match_bi();
+auto match_a_bi();
+auto match_bi_a();
+
+auto match_complex();
+
+std::optional<Complex> parse_cartesian(std::string_view string);
