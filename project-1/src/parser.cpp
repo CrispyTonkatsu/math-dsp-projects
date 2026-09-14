@@ -1,12 +1,35 @@
 #include "parser.hpp"
 
+#include <array>
 #include <cctype>
 #include <charconv>
 #include <cstddef>
 #include <iostream>
 #include <optional>
 #include <ostream>
-#include <variant>
+#include <string_view>
+
+inline std::nullopt_t print_error(const char *message,
+                                  const complex_parser::TokenList &tokens) {
+  using namespace complex_parser;
+  std::cerr << "[Parser] " << message << " : (";
+
+  for (const TokenVariant &token : tokens) {
+    std::visit(
+        TokenMatcher{
+            [](const NumberToken &num) { std::cout << num.text << "/"; },
+            [](const ImaginaryUnitToken &img) {
+              std::cout << img.character << "/";
+            },
+            [](const OperatorToken &op) { std::cout << op.character << "/"; },
+        },
+        token);
+  }
+
+  std::cout << ")" << std::endl;
+
+  return std::nullopt;
+}
 
 std::optional<Complex>
 complex_parser::parse_cartesian(std::string_view string) {
@@ -16,46 +39,92 @@ complex_parser::parse_cartesian(std::string_view string) {
     return std::nullopt;
   }
 
-  TokenList tokens{tokens_opt.value()};
+  const TokenList &tokens{tokens_opt.value()};
 
   const std::size_t token_count{tokens.size()};
 
-  std::cout << "Token Count: " << token_count << std::endl;
-
-  std::optional<Complex> output{Complex::from_cartesian(0, 0)};
-
-  switch (token_count) {
-  case 1: {
-    output = std::visit(
-        TokenMatcher{
-            [](NumberToken &num) -> std::optional<Complex> {
-              std::optional<double> real{num.to_number()};
-
-              return std::make_optional(
-                  Complex::from_cartesian(real.value(), 0));
-            },
-            [](auto &) -> std::optional<Complex> { return std::nullopt; },
-        },
-        tokens[0]);
-  }
-  default:
-    break;
-  }
-
-  return output;
-}
-
-std::optional<double> complex_parser::NumberToken::to_number() const {
-  double real{};
-  std::from_chars_result result{
-      std::from_chars(text.begin(), text.end(), real)};
-
-  if (result.ptr != text.end()) {
-    std::cout << "Invalid number " << text << std::endl;
+  if (token_count == 0) {
+    print_error("There are no tokens", tokens);
     return std::nullopt;
   }
 
-  return real;
+  switch (token_count) {
+  case 1:
+    return TokenListVisit<1>( //
+        TokenMatcher{
+            [](const NumberToken &num) -> std::optional<Complex> {
+              return num.to_complex(true);
+            },
+            [](const ImaginaryUnitToken &) -> std::optional<Complex> {
+              return Complex::from_cartesian(0, 1);
+            },
+            [tokens](const auto &) -> std::optional<Complex> {
+              return print_error("Invalid Number", tokens);
+            },
+        },
+        tokens);
+
+  case 2:
+    return TokenListVisit<2>( //
+        TokenMatcher{
+            [](const NumberToken &num,
+               const ImaginaryUnitToken &) -> std::optional<Complex> { //
+              return num.to_complex(false);
+            },
+            [](const OperatorToken &op,
+               const ImaginaryUnitToken &) -> std::optional<Complex> {
+              int sign{1};
+              if (op.character == '-') {
+                sign = -1;
+              }
+              return Complex::from_cartesian(0, sign);
+            },
+            [tokens](const auto &, const auto &) -> std::optional<Complex> {
+              return print_error("Invalid Number", tokens);
+            },
+        },
+        tokens);
+  }
+
+  return std::nullopt;
+}
+
+std::optional<double> complex_parser::NumberToken::to_number() const {
+  if (text.size() == 0) {
+    std::cout << "[Parser:Number] Corrupt number, it should never be of size 0"
+              << std::endl;
+    return std::nullopt;
+  }
+
+  if (text.size() == 1 && is_operator_char(text[0])) {
+    std::cout << "[Parser:Number] Invalid number: " << text << std::endl;
+    return std::nullopt;
+  }
+
+  const std::size_t offset{text[0] == '+' ? 1u : 0u};
+
+  double number{};
+  std::from_chars_result result{
+      std::from_chars(text.begin() + offset, text.end(), number)};
+
+  if (result.ptr != text.end()) {
+    std::cout << "[Parser:Number] Invalid number " << text << std::endl;
+    return std::nullopt;
+  }
+
+  return number;
+}
+
+std::optional<Complex>
+complex_parser::NumberToken::to_complex(bool is_real) const {
+  const std::optional<double> number_opt{to_number()};
+
+  if (!number_opt.has_value()) {
+    return std::nullopt;
+  }
+
+  return is_real ? Complex::from_cartesian(number_opt.value(), 0)
+                 : Complex::from_cartesian(0, number_opt.value());
 }
 
 bool complex_parser::is_valid_char(char character) {
@@ -78,95 +147,132 @@ bool complex_parser::is_imaginary_char(char character) {
 std::optional<complex_parser::TokenList>
 complex_parser::tokenize(std::string_view string) {
   TokenList output{};
-  TokenType state{TokenType::Idle};
-  TokenType previous_state{TokenType::Idle};
 
   std::size_t index{0};
-  std::size_t state_start_index{0};
-
-  const auto change_state = [&](TokenType next_state) {
-    previous_state = state;
-    state = next_state;
-    state_start_index = index;
-  };
-
   const std::size_t length{string.length()};
 
+  const std::array<TokenizerFunc, 4> tokenizers{
+      try_skip_whitespace, try_token_imaginary, try_token_number,
+      try_token_operator};
+
   while (index < length) {
-    const char &current_character{string[index]};
 
-    switch (state) {
-    case TokenType::Idle: {
-      if (is_number_char(current_character)) {
-        change_state(TokenType::Number);
-        output.emplace_back(NumberToken());
+    bool failed{true};
+    for (TokenizerFunc tokenizer : tokenizers) {
+      std::optional<TokenResult> result{tokenizer(string, index)};
 
-      } else if (is_operator_char(current_character)) {
-        if (previous_state == TokenType::Number) {
-          change_state(TokenType::Operator);
-          output.emplace_back(OperatorToken());
-
-        } else {
-          change_state(TokenType::Number);
-          output.emplace_back(NumberToken());
-          index++;
-        }
-
-      } else if (is_imaginary_char(current_character)) {
-        change_state(TokenType::Imaginary);
-        output.emplace_back(ImaginaryUnitToken());
-
-      } else if (std::isspace(current_character)) {
-        index++;
-
-      } else {
-        std::cerr << "[Tokenizer:Idle] Invalid character found: \""
-                  << current_character << "\" at index: " << index << " in "
-                  << string << "\n";
-        return std::nullopt;
-      }
-    } break;
-
-    case TokenType::Number: {
-      NumberToken &token{std::get<NumberToken>(output.back())};
-
-      char digit{current_character};
-      while (is_number_char(digit) && index < string.length()) {
-        digit = string[index];
-
-        if (!is_valid_char(digit)) {
-          std::cerr << "[Tokenizer:Number] Invalid character found: \"" << digit
-                    << "\" at index: " << index << " in " << string << "\n";
-          return std::nullopt;
-        }
-
-        index++;
+      if (!result.has_value()) {
+        continue;
       }
 
-      token.text = string.substr(state_start_index, index - state_start_index);
+      if (result.value().append_token) {
+        output.push_back(result.value().token);
+      }
 
-      change_state(TokenType::Idle);
-    } break;
+      index += result.value().consumed_count;
 
-    case TokenType::Operator: {
-      OperatorToken &token{std::get<OperatorToken>(output.back())};
+      failed = false;
+      break;
+    }
 
-      index++;
-      token.character = current_character;
-
-      change_state(TokenType::Idle);
-    } break;
-
-    case TokenType::Imaginary: {
-      ImaginaryUnitToken &token{std::get<ImaginaryUnitToken>(output.back())};
-
-      index++;
-      token.character = current_character;
-
-      change_state(TokenType::Idle);
-    } break;
+    if (failed) {
+      std::cerr << "[Tokenizer] Invalid string: " << string.substr(0, index - 1)
+                << " -> " << string[index] << " <- "
+                << string.substr(index, string.length() - index) << std::endl;
+      return std::nullopt;
     }
   }
 
   return output;
+}
+
+std::optional<complex_parser::TokenResult>
+complex_parser::try_skip_whitespace(std::string_view string,
+                                    std::size_t start_index) {
+  if (string[start_index] != ' ') {
+    return std::nullopt;
+  }
+
+  std::size_t index{start_index};
+  while (index < string.length()) {
+    if (string[index] != ' ') {
+      break;
+    }
+
+    index++;
+  }
+
+  return TokenResult{
+      .token{ImaginaryUnitToken{}},
+      .consumed_count = index - start_index,
+      .append_token = false,
+  };
+}
+
+std::optional<complex_parser::TokenResult>
+complex_parser::try_token_imaginary(std::string_view string,
+                                    std::size_t start_index) {
+  if (!is_imaginary_char(string[start_index])) {
+    return std::nullopt;
+  }
+
+  return TokenResult{
+      .token{ImaginaryUnitToken{
+          .character = string[start_index],
+      }},
+      .consumed_count = 1,
+  };
+}
+
+std::optional<complex_parser::TokenResult>
+complex_parser::try_token_number(std::string_view string,
+                                 std::size_t start_index) {
+  std::size_t index{start_index};
+  if (is_operator_char(string[start_index])) {
+    index++;
+  }
+
+  for (; index < string.length(); index++) {
+    const char digit{string[index]};
+
+    if (!is_valid_char(digit)) {
+      return std::nullopt;
+    }
+
+    if (!is_number_char(digit)) {
+      break;
+    }
+  }
+
+  const size_t number_length{index - start_index};
+
+  if (number_length == 0) {
+    return std::nullopt;
+  }
+
+  if (number_length == 1 && is_operator_char(string[start_index])) {
+    return std::nullopt;
+  }
+
+  return TokenResult{
+      .token{NumberToken{
+          .text{string.substr(start_index, number_length)},
+      }},
+      .consumed_count = number_length,
+  };
+}
+
+std::optional<complex_parser::TokenResult>
+complex_parser::try_token_operator(std::string_view string,
+                                   std::size_t start_index) {
+  if (!is_operator_char(string[start_index])) {
+    return std::nullopt;
+  }
+
+  return TokenResult{
+      .token{OperatorToken{
+          .character = string[start_index],
+      }},
+      .consumed_count = 1,
+  };
 }

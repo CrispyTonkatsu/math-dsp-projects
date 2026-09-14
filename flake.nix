@@ -22,6 +22,7 @@
           packages = with pkgs; [
             clang
             clang-tools
+            lldb
 
             cmake
             neocmakelsp
