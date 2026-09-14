@@ -61,6 +61,10 @@ Complex Complex::operator/(const Complex &other) const {
 }
 
 std::string Complex::to_string() const {
+  if (complex < 0) {
+    return std::to_string(real) + "-" + std::to_string(-complex) + "i";
+  }
+
   return std::to_string(real) + "+" + std::to_string(complex) + "i";
 }
 

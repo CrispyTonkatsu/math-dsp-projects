@@ -11,15 +11,6 @@
 #include "complex.hpp"
 
 namespace complex_parser {
-std::optional<Complex> parse_cartesian(std::string_view string);
-
-enum class TokenType {
-  Idle,      // Searches for the first valid state to go to
-  Number,    // Parses all digits up
-  Operator,  // Searches for the operator
-  Imaginary, // Appends i token
-};
-
 struct NumberToken {
   std::string_view text;
 
@@ -34,6 +25,17 @@ struct OperatorToken {
 struct ImaginaryUnitToken {
   char character;
 };
+
+std::optional<Complex> parse_cartesian(std::string_view string);
+
+std::optional<Complex> parse_op_num(const OperatorToken &op,
+                                    const NumberToken &num, bool is_real);
+
+std::optional<Complex> parse_complete(const NumberToken &real,
+                                      bool positive_real,
+                                      const OperatorToken &op,
+                                      const NumberToken &complex,
+                                      bool positive_complex);
 
 template <class... Ts> struct TokenMatcher : Ts... {
   using Ts::operator()...;

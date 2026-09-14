@@ -1,13 +1,11 @@
 #include "parser.hpp"
 
 #include <array>
-#include <cctype>
 #include <charconv>
-#include <cstddef>
 #include <iostream>
 #include <optional>
-#include <ostream>
 #include <string_view>
+#include <variant>
 
 inline std::nullopt_t print_error(const char *message,
                                   const complex_parser::TokenList &tokens) {
@@ -50,7 +48,7 @@ complex_parser::parse_cartesian(std::string_view string) {
 
   switch (token_count) {
   case 1:
-    return TokenListVisit<1>( //
+    return TokenListVisit<1>(
         TokenMatcher{
             [](const NumberToken &num) -> std::optional<Complex> {
               return num.to_complex(true);
@@ -65,8 +63,12 @@ complex_parser::parse_cartesian(std::string_view string) {
         tokens);
 
   case 2:
-    return TokenListVisit<2>( //
+    return TokenListVisit<2>(
         TokenMatcher{
+            [](const OperatorToken &op,
+               const NumberToken &num) -> std::optional<Complex> { //
+              return parse_op_num(op, num, true);
+            },
             [](const NumberToken &num,
                const ImaginaryUnitToken &) -> std::optional<Complex> { //
               return num.to_complex(false);
@@ -74,9 +76,11 @@ complex_parser::parse_cartesian(std::string_view string) {
             [](const OperatorToken &op,
                const ImaginaryUnitToken &) -> std::optional<Complex> {
               int sign{1};
+
               if (op.character == '-') {
                 sign = -1;
               }
+
               return Complex::from_cartesian(0, sign);
             },
             [tokens](const auto &, const auto &) -> std::optional<Complex> {
@@ -84,9 +88,81 @@ complex_parser::parse_cartesian(std::string_view string) {
             },
         },
         tokens);
+  case 3:
+    return TokenListVisit<3>(
+        TokenMatcher{
+            [](const OperatorToken &op, const NumberToken &num,
+               const ImaginaryUnitToken &) -> std::optional<Complex> {
+              return parse_op_num(op, num, false);
+            },
+
+            [tokens](const auto &, const auto &,
+                     const auto &) -> std::optional<Complex> {
+              return print_error("Invalid Number", tokens);
+            },
+        },
+        tokens);
+
+  case 4:
+    return TokenListVisit<4>(
+        TokenMatcher{
+            [](const NumberToken &real, const OperatorToken &op,
+               const NumberToken &complex,
+               const ImaginaryUnitToken &) -> std::optional<Complex> {
+              return parse_complete(real, true, op, complex, true);
+            },
+
+            [](const NumberToken &complex, const ImaginaryUnitToken &,
+               const OperatorToken &op,
+               const NumberToken &real) -> std::optional<Complex> {
+              return parse_complete(real, true, op, complex, true);
+            },
+
+            [tokens](const auto &, const auto &, const auto &,
+                     const auto &) -> std::optional<Complex> {
+              return print_error("Invalid Number", tokens);
+            },
+        },
+        tokens);
   }
 
   return std::nullopt;
+}
+
+std::optional<Complex> complex_parser::parse_op_num(const OperatorToken &op,
+                                                    const NumberToken &num,
+                                                    bool is_real) {
+  std::optional<Complex> number_opt{num.to_complex(is_real)};
+
+  if (!number_opt.has_value()) {
+    return std::nullopt;
+  }
+
+  if (op.character == '-') {
+    return -number_opt.value();
+  }
+
+  return number_opt.value();
+}
+
+std::optional<Complex> complex_parser::parse_complete(
+    const NumberToken &real, bool positive_real, const OperatorToken &op,
+    const NumberToken &complex, bool positive_complex) {
+  std::optional<Complex> real_opt{real.to_complex(true)};
+  std::optional<Complex> complex_opt{complex.to_complex(false)};
+
+  if (!real_opt.has_value() || !complex_opt.has_value()) {
+    return std::nullopt;
+  }
+
+  Complex real_value{real_opt.value() * (positive_real ? 1 : -1)};
+  Complex complex_value{real_opt.value() * (positive_complex ? 1 : -1)};
+
+  if (op.character == '-') {
+    return real_value - complex_value;
+  }
+
+  return real_value + complex_value;
 }
 
 std::optional<double> complex_parser::NumberToken::to_number() const {
@@ -156,7 +232,6 @@ complex_parser::tokenize(std::string_view string) {
       try_token_operator};
 
   while (index < length) {
-
     bool failed{true};
     for (TokenizerFunc tokenizer : tokenizers) {
       std::optional<TokenResult> result{tokenizer(string, index)};
@@ -177,7 +252,7 @@ complex_parser::tokenize(std::string_view string) {
 
     if (failed) {
       std::cerr << "[Tokenizer] Invalid string: " << string.substr(0, index - 1)
-                << " -> " << string[index] << " <- "
+                << " From here-> " << string[index]
                 << string.substr(index, string.length() - index) << std::endl;
       return std::nullopt;
     }
@@ -228,10 +303,6 @@ std::optional<complex_parser::TokenResult>
 complex_parser::try_token_number(std::string_view string,
                                  std::size_t start_index) {
   std::size_t index{start_index};
-  if (is_operator_char(string[start_index])) {
-    index++;
-  }
-
   for (; index < string.length(); index++) {
     const char digit{string[index]};
 
