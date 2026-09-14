@@ -10,7 +10,7 @@ Complex Complex::from_cartesian(double real, double complex) {
   return output;
 }
 
-Complex Complex::from_polar(double angle, double radius) {
+Complex Complex::from_polar(double radius, double angle) {
   Complex output;
   output.real = std::cos(angle) * radius;
   output.complex = std::sin(angle) * radius;
@@ -66,6 +66,14 @@ std::string Complex::to_string() const {
   }
 
   return std::to_string(real) + "+" + std::to_string(complex) + "i";
+}
+
+Complex Complex::rotate(const double angle) {
+  return *this * from_polar(1, angle);
+}
+
+Complex Complex::nth_unity_root(const std::size_t n) {
+  return from_polar(1, std::exp((2 * std::numbers::pi_v<double>) / n));
 }
 
 bool Complex::operator==(const Complex &other) const {

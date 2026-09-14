@@ -12,7 +12,7 @@ int main() {
   parse_cartesian("100-1234i");
   parse_cartesian("-100-1234i");
 
-  parse_cartesian("-100--1234i");
+  parse_cartesian("-100+-1234i");
   parse_cartesian("-100-+1234i");
 
   return 0;

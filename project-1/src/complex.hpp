@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cmath>
+#include <cstddef>
 #include <string>
 
 class Complex {
@@ -20,7 +22,7 @@ public:
 
   // Custom Constructors
   static Complex from_cartesian(double real, double complex);
-  static Complex from_polar(double angle, double radius);
+  static Complex from_polar(double radius, double angle);
 
   // Common operations
   Complex conjugate() const;
@@ -39,9 +41,10 @@ public:
   Complex operator/(const Complex &other) const;
 
   // Utilities
-
-  // TODO: Add a precision argument
   std::string to_string() const;
+  Complex rotate(const double angle);
+  static Complex nth_unity_root(const std::size_t n);
+  Complex inner(const Complex &other);
 
   // Unit test functions
   // This will check if they're exactly the same value
@@ -60,3 +63,33 @@ inline std::ostream &operator<<(std::ostream &stream, Complex number) {
   stream << number.to_string();
   return stream;
 }
+
+template <std::size_t N> class ComplexVec {
+  std::array<Complex, N> numbers{};
+
+public:
+  ComplexVec() = default;
+  ComplexVec(std::array<Complex, N> numbers) : numbers{numbers} {}
+
+  static ComplexVec from_nth_roots() {
+    ComplexVec output{};
+    for (std::size_t i{0}; i < N; i++) {
+      output.numbers[i] = Complex::nth_unity_root(i);
+    }
+
+    return output;
+  }
+
+  Complex inner_product(const ComplexVec &other) const {
+    Complex total{Complex::from_cartesian(0, 0)};
+
+    for (std::size_t i{0}; i < N; i++) {
+      total = numbers[i] * other.numbers[i].conjugate();
+    }
+
+    return total;
+  }
+
+  double length_sq() const { return inner_product(*this); }
+  double length() const { return std::sqrt(length_sq()); }
+};
