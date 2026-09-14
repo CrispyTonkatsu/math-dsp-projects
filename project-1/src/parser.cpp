@@ -1,10 +1,7 @@
 #include "parser.hpp"
 #include "tokenizer.hpp"
 
-#include <execution>
-#include <iostream>
 #include <optional>
-#include <ostream>
 #include <string_view>
 
 TokenCursor::TokenCursor(const TokenList &tokens) : tokens(tokens) {};
@@ -126,14 +123,5 @@ std::optional<Complex> parse_cartesian(std::string_view string) {
   }
 
   TokenCursor cursor{tokens_opt.value()};
-  std::optional<Complex> result{match_complex().parse(cursor)};
-
-  if (!result) {
-    std::cout << "no result" << std::endl;
-    return std::nullopt;
-  }
-
-  std::cout << result.value().to_string() << std::endl;
-
-  return std::nullopt;
+  return match_complex().parse(cursor);
 }
