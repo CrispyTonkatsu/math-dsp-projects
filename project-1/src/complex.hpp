@@ -39,6 +39,7 @@ public:
   Complex operator/(const Complex &other) const;
 
   // Utilities
+
   // TODO: Add a precision argument
   std::string to_string() const;
 
@@ -53,4 +54,9 @@ inline Complex operator*(double scalar, const Complex &complex) {
 
 inline Complex operator/(double scalar, const Complex &complex) {
   return complex / scalar;
+}
+
+inline std::ostream &operator<<(std::ostream &stream, Complex number) {
+  stream << number.to_string();
+  return stream;
 }
