@@ -18,16 +18,14 @@ std::optional<double> NumberToken::to_number() const {
 
   const std::size_t offset{text[0] == '+' ? 1u : 0u};
 
-  double number{};
-  std::from_chars_result result{
-      std::from_chars(text.begin() + offset, text.end(), number)};
+  try {
+    double number{std::stod(text.data() + offset)};
+    return number;
 
-  if (result.ptr != text.end()) {
+  } catch (std::exception &e) {
     std::cout << "[Parser:Number] Invalid number " << text << std::endl;
     return std::nullopt;
   }
-
-  return number;
 }
 
 std::optional<Complex> NumberToken::to_complex(bool is_real) const {

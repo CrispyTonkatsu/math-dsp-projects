@@ -1,5 +1,6 @@
 #include "complex.hpp"
 #include <cmath>
+#include <numbers>
 #include <string>
 
 Complex Complex::from_cartesian(double real, double complex) {

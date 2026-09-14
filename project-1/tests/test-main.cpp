@@ -1,4 +1,5 @@
 #include "parser.hpp"
+#include <iostream>
 
 int main() {
   parse_cartesian("1");
@@ -13,7 +14,7 @@ int main() {
   parse_cartesian("-100-1234i");
 
   parse_cartesian("-100+-1234i");
-  parse_cartesian("-100-+1234i");
+  std::cout << parse_cartesian("-100-+1234i").value();
 
   return 0;
 }
