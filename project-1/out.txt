@@ -52,3 +52,9 @@ Complex dot of ./data/f1.txt with./data/f1.txt
 Complex dot of ./data/f2.txt with./data/f2.txt
 20.000000+0.000000i
 
+Unity dot product of N=2 with file ./data/f1.txt
+-1.000000+2.000000i
+
+Unity dot product of N=2 with file ./data/f2.txt
+2.000000+4.000000i
+
