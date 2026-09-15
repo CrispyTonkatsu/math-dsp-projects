@@ -50,7 +50,7 @@ public:
   // Utilities
   std::string to_string() const;
   Complex rotate(const double angle) const;
-  static Complex nth_unity_root(const std::size_t n);
+  static Complex nth_unity_root(const std::size_t n, const std::size_t k = 1);
 
   // Unit test functions
   // This will check if they're exactly the same value
@@ -77,17 +77,17 @@ public:
   ComplexVec() = default;
   ComplexVec(std::vector<Complex> numbers) : numbers{numbers} {}
 
-  template <std::size_t N> static ComplexVec from_nth_roots() {
-    ComplexVec output{};
-    for (std::size_t i{0}; i < N; i++) {
-      output.numbers[i] = Complex::nth_unity_root(i);
-    }
-
-    return output;
-  }
+  static ComplexVec from_nth_roots(const std::size_t n);
 
   Complex inner_product(const ComplexVec &other) const;
 
   double length_sq() const;
   double length() const;
+
+  std::string to_string() const;
 };
+
+inline std::ostream &operator<<(std::ostream &stream, ComplexVec number) {
+  stream << number.to_string();
+  return stream;
+}

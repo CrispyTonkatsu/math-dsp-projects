@@ -13,12 +13,8 @@ int main(int argc, char *argv[]) {
   const std::size_t k{std::stoul(argv[2])};
 
   Complex output{Complex::from_cartesian(1, 0)};
-  const Complex nth_root{Complex::nth_unity_root(n)};
-
-  Complex accumulator{nth_root};
   for (std::size_t i{1}; i < k; i++) {
-    output = output + accumulator;
-    accumulator = accumulator * nth_root;
+    output = output + Complex::nth_unity_root(n, i);
   }
 
   std::cout << output << std::endl;

@@ -24,7 +24,7 @@ int main(int argc, char *argv[]) {
     Complex rotated_number{
         number.rotate(2.0 * std::numbers::pi_v<double> * rotate_mutiplier)};
 
-    std::cout << rotated_number << "\n ";
+    std::cout << rotated_number << "\n";
   }
 
   return 0;
