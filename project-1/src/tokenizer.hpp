@@ -54,4 +54,3 @@ std::optional<TokenResult> try_token_number(std::string_view string,
 
 std::optional<TokenResult> try_token_operator(std::string_view string,
                                               std::size_t start_index);
-
