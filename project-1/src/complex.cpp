@@ -70,11 +70,11 @@ std::string Complex::to_string() const {
 }
 
 Complex Complex::rotate(const double angle) const {
-  return *this * from_polar(1, angle);
+  return *this * from_polar(1.0, angle);
 }
 
 Complex Complex::nth_unity_root(const std::size_t n) {
-  return from_polar(1, std::exp((2 * std::numbers::pi_v<double>) / n));
+  return from_polar(1.0, 2.0 * std::numbers::pi_v<double> * (1.0 / n));
 }
 
 bool Complex::operator==(const Complex &other) const {

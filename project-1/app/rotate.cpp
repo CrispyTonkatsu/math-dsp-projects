@@ -8,7 +8,7 @@ int main(int argc, char *argv[]) {
     return 0;
   }
 
-  const size_t number_count{std::stoul(argv[1])};
+  const std::size_t number_count{std::stoul(argv[1])};
   const std::string file_path{argv[2]};
   const double rotate_mutiplier{std::stod(argv[3])};
 
@@ -26,4 +26,6 @@ int main(int argc, char *argv[]) {
 
     std::cout << rotated_number << "\n ";
   }
+
+  return 0;
 }

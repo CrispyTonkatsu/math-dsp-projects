@@ -1,7 +1,4 @@
 #!/bin/sh
 
-rm -rf ./build
-cmake -B build
-cmake --build build
-
 ./tests/scripts/rotate-test.sh
+./tests/scripts/root-sum-test.sh

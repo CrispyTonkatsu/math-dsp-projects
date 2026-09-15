@@ -1,0 +1,135 @@
+Rotate ./data/f1.txt by angle 2*PI*0
+1.000000+1.000000i
+ 2.000000-1.000000i
+ 
+Rotate ./data/f1.txt by angle 2*PI*0.25
+-1.000000+1.000000i
+ 1.000000+2.000000i
+ 
+Rotate ./data/f1.txt by angle 2*PI*-0.25
+1.000000-1.000000i
+ -1.000000-2.000000i
+ 
+Rotate ./data/f1.txt by angle 2*PI*0.75
+1.000000-1.000000i
+ -1.000000-2.000000i
+ 
+Rotate ./data/f1.txt by angle 2*PI*0.5
+-1.000000-1.000000i
+ -2.000000+1.000000i
+ 
+Rotate ./data/f2.txt by angle 2*PI*0.25
+-1.000000+3.000000i
+ 3.000000+1.000000i
+ 
+Rotate ./data/f2.txt by angle 2*PI*-0.25
+1.000000-3.000000i
+ -3.000000-1.000000i
+ 
+Rotate ./data/f2.txt by angle 2*PI*0.75
+1.000000-3.000000i
+ -3.000000-1.000000i
+ 
+Rotate ./data/f2.txt by angle 2*PI*0.5
+-3.000000-1.000000i
+ -1.000000+3.000000i
+ 
+Unity root sum with N=4 K=2
+1.000000+1.000000i
+
+Unity root sum with N=3 K=2
+0.500000+0.866025i
+
+Unity root sum with N=8 K=7
+-0.707107+0.707107i
+
+Rotate ./data/f1.txt by angle 2*PI*0
+1.000000+1.000000i
+ 2.000000-1.000000i
+ 
+Rotate ./data/f1.txt by angle 2*PI*0.25
+-1.000000+1.000000i
+ 1.000000+2.000000i
+ 
+Rotate ./data/f1.txt by angle 2*PI*-0.25
+1.000000-1.000000i
+ -1.000000-2.000000i
+ 
+Rotate ./data/f1.txt by angle 2*PI*0.75
+1.000000-1.000000i
+ -1.000000-2.000000i
+ 
+Rotate ./data/f1.txt by angle 2*PI*0.5
+-1.000000-1.000000i
+ -2.000000+1.000000i
+ 
+Rotate ./data/f2.txt by angle 2*PI*0.25
+-1.000000+3.000000i
+ 3.000000+1.000000i
+ 
+Rotate ./data/f2.txt by angle 2*PI*-0.25
+1.000000-3.000000i
+ -3.000000-1.000000i
+ 
+Rotate ./data/f2.txt by angle 2*PI*0.75
+1.000000-3.000000i
+ -3.000000-1.000000i
+ 
+Rotate ./data/f2.txt by angle 2*PI*0.5
+-3.000000-1.000000i
+ -1.000000+3.000000i
+ 
+Unity root sum with N=4 K=2
+1.000000+1.000000i
+
+Unity root sum with N=3 K=2
+0.500000+0.866025i
+
+Unity root sum with N=8 K=7
+-0.707107+0.707107i
+
+Rotate ./data/f1.txt by angle 2*PI*0
+1.000000+1.000000i
+ 2.000000-1.000000i
+ 
+Rotate ./data/f1.txt by angle 2*PI*0.25
+-1.000000+1.000000i
+ 1.000000+2.000000i
+ 
+Rotate ./data/f1.txt by angle 2*PI*-0.25
+1.000000-1.000000i
+ -1.000000-2.000000i
+ 
+Rotate ./data/f1.txt by angle 2*PI*0.75
+1.000000-1.000000i
+ -1.000000-2.000000i
+ 
+Rotate ./data/f1.txt by angle 2*PI*0.5
+-1.000000-1.000000i
+ -2.000000+1.000000i
+ 
+Rotate ./data/f2.txt by angle 2*PI*0.25
+-1.000000+3.000000i
+ 3.000000+1.000000i
+ 
+Rotate ./data/f2.txt by angle 2*PI*-0.25
+1.000000-3.000000i
+ -3.000000-1.000000i
+ 
+Rotate ./data/f2.txt by angle 2*PI*0.75
+1.000000-3.000000i
+ -3.000000-1.000000i
+ 
+Rotate ./data/f2.txt by angle 2*PI*0.5
+-3.000000-1.000000i
+ -1.000000+3.000000i
+ 
+Unity root sum with N=4 K=2
+1.000000+1.000000i
+
+Unity root sum with N=3 K=2
+0.500000+0.866025i
+
+Unity root sum with N=8 K=7
+-0.707107+0.707107i
+

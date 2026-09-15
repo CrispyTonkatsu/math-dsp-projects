@@ -37,5 +37,10 @@ utils::read_file(std::string_view file_path,
     }
   }
 
+  if (read_until && output.size() != *read_until) {
+    std::cerr << "Not enough numbers: " << *read_until << "\n";
+    return std::nullopt;
+  }
+
   return output;
 }
