@@ -10,7 +10,7 @@ int main(int argc, char *argv[]) {
 
   const std::size_t number_count{std::stoul(argv[1])};
   const std::string file_path_a{argv[2]};
-  const std::string file_path_b{argv[2]};
+  const std::string file_path_b{argv[3]};
 
   std::optional<std::vector<Complex>> numbers_a_opt{
       utils::read_file(file_path_a, number_count)};
@@ -19,7 +19,13 @@ int main(int argc, char *argv[]) {
       utils::read_file(file_path_b, number_count)};
 
   if (!numbers_a_opt || !numbers_b_opt) {
+    return 0;
   }
+
+  const ComplexVec vec_a{*numbers_a_opt};
+  const ComplexVec vec_b{*numbers_b_opt};
+
+  std::cout << vec_a.inner_product(vec_b) << std::endl;
 
   return 0;
 }

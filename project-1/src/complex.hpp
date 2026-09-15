@@ -1,8 +1,8 @@
 #pragma once
 
-#include <cmath>
 #include <cstddef>
 #include <string>
+#include <vector>
 
 class Complex {
   double real{0};
@@ -23,6 +23,13 @@ public:
   // Custom Constructors
   static Complex from_cartesian(double real, double complex);
   static Complex from_polar(double radius, double angle);
+
+  // Getters
+  double get_real() const;
+  double get_complex() const;
+
+  double get_radius() const;
+  double get_angle() const;
 
   // Common operations
   Complex conjugate() const;
@@ -63,14 +70,14 @@ inline std::ostream &operator<<(std::ostream &stream, Complex number) {
   return stream;
 }
 
-template <std::size_t N> class ComplexVec {
-  std::array<Complex, N> numbers{};
+class ComplexVec {
+  std::vector<Complex> numbers{};
 
 public:
   ComplexVec() = default;
-  ComplexVec(std::array<Complex, N> numbers) : numbers{numbers} {}
+  ComplexVec(std::vector<Complex> numbers) : numbers{numbers} {}
 
-  static ComplexVec from_nth_roots() {
+  template <std::size_t N> static ComplexVec from_nth_roots() {
     ComplexVec output{};
     for (std::size_t i{0}; i < N; i++) {
       output.numbers[i] = Complex::nth_unity_root(i);
@@ -79,16 +86,8 @@ public:
     return output;
   }
 
-  Complex inner_product(const ComplexVec &other) const {
-    Complex total{Complex::from_cartesian(0, 0)};
+  Complex inner_product(const ComplexVec &other) const;
 
-    for (std::size_t i{0}; i < N; i++) {
-      total = numbers[i] * other.numbers[i].conjugate();
-    }
-
-    return total;
-  }
-
-  double length_sq() const { return inner_product(*this); }
-  double length() const { return std::sqrt(length_sq()); }
+  double length_sq() const;
+  double length() const;
 };

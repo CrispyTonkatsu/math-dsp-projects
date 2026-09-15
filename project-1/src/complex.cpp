@@ -1,6 +1,8 @@
 #include "complex.hpp"
+
 #include <cmath>
 #include <numbers>
+#include <stdexcept>
 #include <string>
 
 Complex Complex::from_cartesian(double real, double complex) {
@@ -17,6 +19,17 @@ Complex Complex::from_polar(double radius, double angle) {
   output.complex = std::sin(angle) * radius;
 
   return output;
+}
+
+double Complex::get_real() const { return real; }
+
+double Complex::get_complex() const { return complex; }
+
+double Complex::get_radius() const { return magnitude(); }
+
+double Complex::get_angle() const {
+  return real > 0 ? std::atan(complex / real)
+                  : std::atan((complex / real) + std::numbers::pi_v<double>);
 }
 
 Complex Complex::conjugate() const { return from_cartesian(real, -complex); }
@@ -80,3 +93,22 @@ Complex Complex::nth_unity_root(const std::size_t n) {
 bool Complex::operator==(const Complex &other) const {
   return real == other.real && complex == other.complex;
 }
+
+Complex ComplexVec::inner_product(const ComplexVec &other) const {
+  if (numbers.size() != other.numbers.size()) {
+    throw std::runtime_error("The complex vectors must be of the same size "
+                             "for inner product operations");
+  }
+
+  Complex total{Complex::from_cartesian(0, 0)};
+
+  for (std::size_t i{0}; i < numbers.size(); i++) {
+    total = total + numbers[i] * other.numbers[i].conjugate();
+  }
+
+  return total;
+}
+
+double ComplexVec::length_sq() const { return inner_product(*this).get_real(); }
+
+double ComplexVec::length() const { return std::sqrt(length_sq()); }
