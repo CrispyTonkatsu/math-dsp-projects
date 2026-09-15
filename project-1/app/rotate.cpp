@@ -1,5 +1,6 @@
 #include "utils.hpp"
 #include <iostream>
+#include <numbers>
 #include <ostream>
 
 int main(int argc, char *argv[]) {
