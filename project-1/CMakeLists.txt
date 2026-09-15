@@ -15,12 +15,12 @@ set(
 	${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES}
 )
 
-add_library(project_warnings INTERFACE)
+add_library(project-warnings INTERFACE)
 
 if(MSVC)
-	target_compile_options(project_warnings INTERFACE /W4 /WX)
+	target_compile_options(project-warnings INTERFACE /W4 /WX)
 else()
-	target_compile_options(project_warnings INTERFACE
+	target_compile_options(project-warnings INTERFACE
 		-Werror
 		-Wall
 		-Wextra
@@ -35,6 +35,6 @@ else()
 	)
 endif()
 
-
 add_subdirectory(./src)
+add_subdirectory(./app)
 add_subdirectory(./tests)
