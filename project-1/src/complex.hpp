@@ -42,9 +42,8 @@ public:
 
   // Utilities
   std::string to_string() const;
-  Complex rotate(const double angle);
+  Complex rotate(const double angle) const;
   static Complex nth_unity_root(const std::size_t n);
-  Complex inner(const Complex &other);
 
   // Unit test functions
   // This will check if they're exactly the same value

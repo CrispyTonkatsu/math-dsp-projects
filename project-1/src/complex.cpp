@@ -69,7 +69,7 @@ std::string Complex::to_string() const {
   return std::to_string(real) + "+" + std::to_string(complex) + "i";
 }
 
-Complex Complex::rotate(const double angle) {
+Complex Complex::rotate(const double angle) const {
   return *this * from_polar(1, angle);
 }
 

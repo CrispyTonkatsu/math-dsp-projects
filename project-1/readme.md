@@ -12,6 +12,9 @@ cmake --build build
 ``
 Then run the binaries generated in the `./build/` directory.
 
+## Testing script
+Additionally, one can just run all the sample tests by doing `./tests/scripts/test-all.sh` on UNIX systems.
+
 ## Accepted strings:
 The accepted formats for the numbers are:
 - $a + bi$
