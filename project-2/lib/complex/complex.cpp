@@ -86,19 +86,22 @@ Complex Complex::rotate(const double angle) const {
   return *this * from_polar(1.0, angle);
 }
 
-Complex Complex::nth_unity_root(const std::size_t n, const std::size_t k) {
-  return from_polar(1.0, 2.0 * std::numbers::pi_v<double> * (1.0 / n) * k);
+Complex Complex::nth_unity_root(const std::size_t n, const std::size_t k,
+                                const double multiplier) {
+  return from_polar(1.0, 2.0 * std::numbers::pi_v<double> * (1.0 / n) * k *
+                             multiplier);
 }
 
 bool Complex::operator==(const Complex &other) const {
   return real == other.real && complex == other.complex;
 }
 
-ComplexVec ComplexVec::from_nth_roots(const std::size_t n) {
+ComplexVec ComplexVec::from_nth_roots(const std::size_t n,
+                                      const double multiplier) {
   ComplexVec output{};
 
   for (std::size_t i{0}; i < n; i++) {
-    output.numbers.push_back(Complex::nth_unity_root(n, i));
+    output.numbers.push_back(Complex::nth_unity_root(n, i, multiplier));
   }
 
   return output;
