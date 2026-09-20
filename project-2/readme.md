@@ -1,9 +1,14 @@
-# Project 1
-This project is a simple complex number calculator.
+# Project 2
+This project is an implementation of the DFT and the FFT algorithms
+
+## Running
+### DFT
+
+### FFT
 
 ## Dependencies
 - CMake
-- Clang version with C++ 20 support
+- C/C++ compiler with C++ 20 support
 
 ### For testing scripts
 - UNIX system with bash
@@ -19,19 +24,6 @@ cmake --build build
 ``
 Then run the binaries generated in the `./build/` directory.
 There are also some precompiled mac executables in the executables folder for your convenience.
-
-## Arguments
-### rotate
-`rotate ${number_count} ${number_file} ${angle_multiplier}`
-
-### root-sum
-`root-sum ${nth_root} ${k_root_count}`
-
-### complex-dot
-`complex-dot ${number_count} ${vector_a_file} ${vector_b_file}`
-
-### unity-dot
-`unity-dot ${number_count} ${number_file}`
 
 ## Testing script
 Additionally, one can just run all the sample tests by doing `./tests/scripts/test-all.sh` on UNIX systems.
