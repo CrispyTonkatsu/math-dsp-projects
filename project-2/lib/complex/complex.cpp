@@ -107,6 +107,17 @@ ComplexVec ComplexVec::from_nth_roots(const std::size_t n,
   return output;
 }
 
+ComplexVec ComplexVec::fourier_basis(const std::size_t n, const std::size_t k,
+                                     const double multiplier) {
+  ComplexVec output{};
+
+  for (std::size_t i{0}; i < n; i++) {
+    output.numbers.push_back(Complex::nth_unity_root(n, k * i, multiplier));
+  }
+
+  return output;
+}
+
 Complex ComplexVec::inner_product(const ComplexVec &other) const {
   if (numbers.size() != other.numbers.size()) {
     throw std::runtime_error("The complex vectors must be of the same size "
@@ -129,13 +140,18 @@ double ComplexVec::length() const { return std::sqrt(length_sq()); }
 std::string ComplexVec::to_string() const {
   std::string output{};
 
-  output.append("< ");
-
   for (const Complex &number : numbers) {
-    output.append(number.to_string()).append(" ");
+    output.append(number.to_string()).append("\n");
   }
-
-  output.append(">");
+  output.pop_back();
 
   return output;
+}
+
+Complex &ComplexVec::operator[](const std::size_t index) {
+  return numbers[index];
+}
+
+const Complex &ComplexVec::operator[](const std::size_t index) const {
+  return numbers[index];
 }

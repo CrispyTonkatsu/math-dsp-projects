@@ -8,10 +8,8 @@ class Complex {
   double real{0};
   double complex{0};
 
-  // The rule of 5 (Being explicit because I find it helpful)
-  Complex() = default;
-
 public:
+  Complex() = default;
   ~Complex() = default;
 
   Complex(const Complex &rhs) = default;
@@ -76,10 +74,14 @@ class ComplexVec {
 
 public:
   ComplexVec() = default;
-  ComplexVec(std::vector<Complex> numbers) : numbers{numbers} {}
+  ComplexVec(std::vector<Complex> &&numbers) : numbers{std::move(numbers)} {}
+  ComplexVec(const std::vector<Complex> &numbers) : numbers{numbers} {}
 
   static ComplexVec from_nth_roots(const std::size_t n,
                                    const double multiplier = 1.0);
+
+  static ComplexVec fourier_basis(const std::size_t n, const std::size_t k,
+                                  const double multiplier = 1.0);
 
   Complex inner_product(const ComplexVec &other) const;
 
@@ -87,6 +89,9 @@ public:
   double length() const;
 
   std::string to_string() const;
+
+  Complex &operator[](const std::size_t index);
+  const Complex &operator[](const std::size_t index) const;
 };
 
 inline std::ostream &operator<<(std::ostream &stream, ComplexVec number) {
