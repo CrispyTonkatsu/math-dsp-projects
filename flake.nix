@@ -20,7 +20,7 @@
           name = "math-dsp";
 
           packages = with pkgs; [
-            clang
+            gcc
             clang-tools
             lldb
 
