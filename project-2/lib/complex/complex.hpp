@@ -84,6 +84,7 @@ public:
                                   const double multiplier = 1.0);
 
   Complex inner_product(const ComplexVec &other) const;
+  Complex hadamard_product(const ComplexVec &other) const;
 
   double length_sq() const;
   double length() const;
@@ -92,6 +93,8 @@ public:
 
   Complex &operator[](const std::size_t index);
   const Complex &operator[](const std::size_t index) const;
+
+  const std::vector<Complex> &as_vec() const;
 };
 
 inline std::ostream &operator<<(std::ostream &stream, ComplexVec number) {

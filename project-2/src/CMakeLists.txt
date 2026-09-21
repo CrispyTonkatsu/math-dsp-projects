@@ -7,3 +7,13 @@ target_link_libraries(dft-calc
 	dft
 	utils
 )
+
+add_executable(fft-calc ./fft-calc.cpp)
+target_link_libraries(fft-calc
+	PUBLIC
+	project-warnings
+	complex-number
+	complex-number-parser
+	fft
+	utils
+)

@@ -133,6 +133,21 @@ Complex ComplexVec::inner_product(const ComplexVec &other) const {
   return total;
 }
 
+Complex ComplexVec::hadamard_product(const ComplexVec &other) const {
+  if (numbers.size() != other.numbers.size()) {
+    throw std::runtime_error("The complex vectors must be of the same size "
+                             "for inner product operations");
+  }
+
+  Complex total{Complex::from_cartesian(0, 0)};
+
+  for (std::size_t i{0}; i < numbers.size(); i++) {
+    total = total + numbers[i] * other.numbers[i];
+  }
+
+  return total;
+}
+
 double ComplexVec::length_sq() const { return inner_product(*this).get_real(); }
 
 double ComplexVec::length() const { return std::sqrt(length_sq()); }
@@ -155,3 +170,5 @@ Complex &ComplexVec::operator[](const std::size_t index) {
 const Complex &ComplexVec::operator[](const std::size_t index) const {
   return numbers[index];
 }
+
+const std::vector<Complex> &ComplexVec::as_vec() const { return numbers; }
