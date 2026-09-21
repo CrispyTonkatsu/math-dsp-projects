@@ -2,9 +2,9 @@
 This project is an implementation of the DFT and the FFT algorithms
 
 ## Running
-### DFT
-
-### FFT
+`./build/src/dft-calc ${N} ${numbers file}`
+`./build/src/fft-calc ${N} ${numbers file}`
+Where the numbers file is a file of N complex numbers.
 
 ## Dependencies
 - CMake
