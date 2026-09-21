@@ -1,9 +1,26 @@
 #include "complex.hpp"
 
 #include <cmath>
+#include <iostream>
 #include <numbers>
-#include <stdexcept>
 #include <string>
+
+std::ostream &operator<<(std::ostream &stream, Complex number) {
+  stream << number.real;
+  stream << (number.complex < 0 ? '-' : '+');
+  stream << std::abs(number.complex);
+  stream << 'i';
+
+  return stream;
+}
+
+std::ostream &operator<<(std::ostream &stream, ComplexVec vec) {
+  for (const Complex &number : vec.numbers) {
+    stream << number << '\n';
+  }
+
+  return stream;
+}
 
 Complex Complex::from_cartesian(double real, double complex) {
   Complex output;

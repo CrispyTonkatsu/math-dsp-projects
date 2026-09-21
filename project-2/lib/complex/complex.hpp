@@ -1,8 +1,13 @@
 #pragma once
 
-#include <cstddef>
 #include <string>
 #include <vector>
+
+class Complex;
+std::ostream &operator<<(std::ostream &stream, Complex number);
+
+class ComplexVec;
+std::ostream &operator<<(std::ostream &stream, ComplexVec vec);
 
 class Complex {
   double real{0};
@@ -54,6 +59,8 @@ public:
   // Unit test functions
   // This will check if they're exactly the same value
   bool operator==(const Complex &other) const;
+
+  friend std::ostream &operator<<(std::ostream &stream, Complex number);
 };
 
 inline Complex operator*(double scalar, const Complex &complex) {
@@ -62,11 +69,6 @@ inline Complex operator*(double scalar, const Complex &complex) {
 
 inline Complex operator/(double scalar, const Complex &complex) {
   return complex / scalar;
-}
-
-inline std::ostream &operator<<(std::ostream &stream, Complex number) {
-  stream << number.to_string();
-  return stream;
 }
 
 class ComplexVec {
@@ -95,9 +97,6 @@ public:
   const Complex &operator[](const std::size_t index) const;
 
   const std::vector<Complex> &as_vec() const;
-};
 
-inline std::ostream &operator<<(std::ostream &stream, ComplexVec number) {
-  stream << number.to_string();
-  return stream;
-}
+  friend std::ostream &operator<<(std::ostream &stream, ComplexVec vec);
+};

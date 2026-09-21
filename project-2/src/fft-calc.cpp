@@ -1,3 +1,4 @@
+#include <iomanip>
 #include <iostream>
 
 #include "complex.hpp"
@@ -24,7 +25,7 @@ int main(int argc, char *argv[]) {
   const ComplexVec input{std::move(input_opt.value())};
   const ComplexVec output{FFT(input, n)};
 
-  std::cout << output;
+  std::cout << std::setprecision(4) << output;
 
   return 0;
 }

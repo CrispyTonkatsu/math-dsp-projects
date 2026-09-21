@@ -4,6 +4,12 @@ rm -rf ./build
 cmake -B build
 cmake --build build
 
-rm out.txt
-./tests/scripts/test-all.sh >> out.txt
+echo "Testing DFT"
+./build/src/dft-calc 8 ./test-data/input1.txt > dft-out-1.txt
+./build/src/dft-calc 8 ./test-data/input2.txt > dft-out-2.txt
+
+echo "Testing FFT"
+./build/src/fft-calc 8 ./test-data/input1.txt > fft-out-1.txt
+./build/src/fft-calc 8 ./test-data/input2.txt > fft-out-2.txt
+
 echo "Test results located in out.txt"
