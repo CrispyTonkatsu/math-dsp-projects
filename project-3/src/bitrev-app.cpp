@@ -16,8 +16,8 @@ int main(int argc, char **argv) {
 
   std::uint64_t bits{0};
   for (std::size_t i{0}; i < n; i++) {
-    std::cout << std::setw(2) << i << " " << pretty_bitset(i, k) << " "
-              << std::setw(2) << bits << " " << pretty_bitset(bits, k) << '\n';
+    std::cout << std::setw(4) << i << " " << pretty_bitset(i, k) << " "
+              << std::setw(4) << bits << " " << pretty_bitset(bits, k) << '\n';
 
     bits = reverse_add(bits, k);
   }

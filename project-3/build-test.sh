@@ -4,10 +4,10 @@ rm -rf ./build
 cmake -B build
 cmake --build build
 
-./build/src/dft-calc 8 ./test-data/input1.txt > dft-out-1.txt
-./build/src/dft-calc 8 ./test-data/input2.txt > dft-out-2.txt
+./build/src/bitrev-app 16 >> out16.txt
+diff out16.txt ./test-data/out16.txt
 
-./build/src/fft-calc 8 ./test-data/input1.txt > fft-out-1.txt
-./build/src/fft-calc 8 ./test-data/input2.txt > fft-out-2.txt
+./build/src/bitrev-app 32 >> out32.txt
+diff out32.txt ./test-data/out32.txt
 
 echo "Test results located in current directory"
