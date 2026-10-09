@@ -1,4 +1,6 @@
+#include <iomanip>
 #include <iostream>
+
 #include "bitrev.hpp"
 
 int main(int argc, char **argv) {
@@ -12,10 +14,11 @@ int main(int argc, char **argv) {
   // TODO: Find a way to not rely on casting here
   const std::size_t k{static_cast<std::size_t>(std::sqrt(n))};
 
-  // TODO: Prettify the printing here
   std::uint64_t bits{0};
   for (std::size_t i{0}; i < n; i++) {
-    std::cout << "Output " << i << " " << bits << '\n';
+    std::cout << std::setw(2) << i << " " << pretty_bitset(i, k) << " "
+              << std::setw(2) << bits << " " << pretty_bitset(bits, k) << '\n';
+
     bits = reverse_add(bits, k);
   }
 }
