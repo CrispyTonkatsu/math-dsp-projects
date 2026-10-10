@@ -4,3 +4,14 @@ target_link_libraries(bitrev-app
 	bitrev
 	project-warnings
 )
+
+add_executable(br-fft-app ./br-fft-app.cpp)
+target_link_libraries(br-fft-app
+	PUBLIC
+	complex-number
+	complex-number-parser
+	bitrev
+	br-fft
+	utils
+	project-warnings
+)

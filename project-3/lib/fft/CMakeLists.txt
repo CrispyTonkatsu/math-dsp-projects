@@ -20,4 +20,5 @@ target_link_libraries(br-fft
 	PRIVATE
 	project-warnings
 	complex-number
+	bitrev
 )
