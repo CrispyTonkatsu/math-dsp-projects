@@ -14,9 +14,9 @@ target_link_libraries(fft
 	complex-number
 )
 
-add_library(rec-fft rec-fft.cpp)
-target_include_directories(rec-fft PUBLIC .)
-target_link_libraries(rec-fft
+add_library(br-fft br-fft.cpp)
+target_include_directories(br-fft PUBLIC .)
+target_link_libraries(br-fft
 	PRIVATE
 	project-warnings
 	complex-number
