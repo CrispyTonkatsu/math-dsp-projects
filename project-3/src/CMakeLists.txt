@@ -15,3 +15,16 @@ target_link_libraries(br-fft-app
 	utils
 	project-warnings
 )
+
+add_executable(benchmark ./benchmark.cpp)
+target_link_libraries(benchmark
+	PUBLIC
+	complex-number
+	complex-number-parser
+	bitrev
+	dft
+	fft
+	br-fft
+	utils
+	project-warnings
+)
