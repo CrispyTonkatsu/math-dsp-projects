@@ -1,10 +1,15 @@
-# Project 2
-This project is an implementation of the DFT and the FFT algorithms
+# Project 3
+This project is an implementation of bit reversal FFT and a benchmark of the DFT algorithms.
 
 ## Running
-`./build/src/dft-calc ${N} ${numbers file}`
-`./build/src/fft-calc ${N} ${numbers file}`
+`./build/src/bitrev-app ${N}`
+Where $N = 2^k$.
+
+`./build/src/br-fft-app ${N} ${numbers file}`
 Where the numbers file is a file of N complex numbers.
+
+`./build/src/benchmark`
+The timing.txt will be placed in the current directory.
 
 ## Dependencies
 - CMake
