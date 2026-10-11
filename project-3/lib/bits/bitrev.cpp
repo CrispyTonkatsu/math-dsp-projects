@@ -1,4 +1,7 @@
 #include "bitrev.hpp"
+#include <bit>
+
+std::size_t log2(std::uint64_t bits) { return std::countr_zero(bits); }
 
 std::uint64_t reverse_add(std::uint64_t bits, std::size_t bit_count) {
   for (std::uint64_t mask{1u << (bit_count - 1)}; mask != 0; mask >>= 1) {

@@ -12,8 +12,7 @@ int main(int argc, char **argv) {
 
   const std::size_t n{std::stoul(argv[1])};
 
-  // TODO: Find a way to not rely on casting here
-  const std::size_t log_n{static_cast<std::size_t>(std::log2(n))};
+  const std::size_t log_n{log2(n)};
 
   std::uint64_t bits{0};
   for (std::size_t i{0}; i < n; i++) {

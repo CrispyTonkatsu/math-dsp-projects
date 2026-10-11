@@ -4,8 +4,7 @@
 #include "bitrev.hpp"
 
 void BitRevFFT(ComplexVec &vec, const std::size_t n) {
-  // TODO: Find a way to not rely in casting here
-  const std::size_t log_n{static_cast<std::size_t>(std::log2(n))};
+  const std::size_t log_n{log2(n)};
 
   std::uint64_t rev_counter{0};
   for (std::size_t i{0}; i < n / 2; i++) {
