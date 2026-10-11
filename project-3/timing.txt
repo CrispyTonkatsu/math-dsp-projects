@@ -1,0 +1,3 @@
+                 DFT          13209155ns
+       Recursive FFT            186955ns
+    Bit Reversal FFT             86000ns

@@ -7,8 +7,11 @@ void BitRevFFT(ComplexVec &vec, const std::size_t n) {
   const std::size_t log_n{log2(n)};
 
   std::uint64_t rev_counter{0};
-  for (std::size_t i{0}; i < n / 2; i++) {
-    std::swap(vec[i], vec[rev_counter]);
+  for (std::size_t i{0}; i < n; i++) {
+    if (i < rev_counter) {
+      std::swap(vec[i], vec[rev_counter]);
+    }
+
     rev_counter = reverse_add(rev_counter, log_n);
   }
 
