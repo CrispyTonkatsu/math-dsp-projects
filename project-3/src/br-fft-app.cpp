@@ -12,6 +12,10 @@ int main(int argc, char *argv[]) {
   }
 
   const std::size_t n{std::stoull(argv[1])};
+  if (n % 2 != 0) {
+    std::cerr << "Argument N is not a power of 2.\n";
+    return 0;
+  }
 
   const std::string file_path{argv[2]};
 
