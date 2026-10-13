@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <string>
 
-std::size_t log2(std::uint64_t bits);
+std::size_t bitcount_log2(std::uint64_t bits);
 
 std::uint64_t reverse_add(std::uint64_t bits, std::size_t bit_count);
 

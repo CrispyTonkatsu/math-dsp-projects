@@ -16,7 +16,7 @@ int main(int argc, char **argv) {
     return 0;
   }
 
-  const std::size_t log_n{log2(n)};
+  const std::size_t log_n{bitcount_log2(n)};
 
   std::uint64_t bits{0};
   for (std::size_t i{0}; i < n; i++) {

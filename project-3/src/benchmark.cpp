@@ -3,6 +3,7 @@
 #include <cmath>
 #include <fstream>
 #include <iostream>
+#include <numbers>
 
 #include "br-fft.hpp"
 #include "dft.hpp"
