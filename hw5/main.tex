@@ -75,14 +75,11 @@ This results in the following points:
 \end{align*}
 
 \subsection{Sketch of $\magres{\omega}_{dB}$}
-\textbf{Ask the professor what they meant by t-axis.}
-
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=\textwidth]{graph}
 	\caption{Magnitude Response Graph in dB}
 \end{figure}
-
 
 \subsection{Phase response} \begin{align*}
 	\freq{\omega}  & = 1 - R^L e^{-i L \omega}                                            \\
@@ -197,8 +194,41 @@ From there we can get the following:
 \end{align*}
 
 \section{$R \approx e^{-\frac{B}{2}}$ Approximation Derivation}
+Suppose $R = 1 - \epsilon$, then one can represent $\cos\phi$ as:
+$$
+	\cos\phi = 2 - \frac{1}{2}(1 - \epsilon + (1 - \epsilon)^{-1})
+$$
 
-% TODO: Finish this excercise
+Then from the power series of $(1 - \epsilon)^{-1}$:
+$$
+	\cos\phi = 2 - \frac{1}{2}(1 - \epsilon + 1 + \epsilon + \epsilon^2 + \dots)
+$$
+
+After simplifying a bit:
+$$
+	\cos\phi = 1 - \frac{1}{2}\epsilon^2 + \dots
+$$
+
+Using the expansion of $\cos \phi$:
+$$
+	\cos\phi = 1 - \frac{1}{2}\phi^2 + \dots
+$$
+
+From there, we can find the approximation $\phi \approx \epsilon \approx \frac{1}{2}B$.
+Substituting accordingly gives:
+$$
+	R \approx 1 - \frac{1}{2}B
+$$
+
+Looking at the expansion of decaying exponential:
+$$
+	e^{-x} \approx 1 - x
+$$
+
+We can then deduce our approximation from there:
+$$
+	R \approx e^{-B/2}
+$$
 
 \section{Discrepancies of pole angles and peak frequencies}
 
