@@ -20,12 +20,26 @@
           name = "math-dsp";
 
           packages = with pkgs; [
+            (python3.withPackages (
+              ps: with ps; [
+                numpy
+                sympy
+                scipy
+                matplotlib
+              ]
+            ))
+            basedpyright
+            ruff
+
             gcc
             clang-tools
             lldb
 
             cmake
             neocmakelsp
+
+            texliveFull
+            texlab
           ];
         };
       }
