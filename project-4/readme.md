@@ -2,14 +2,10 @@
 This project is an implementation of a low pass filter
 
 ## Running
-`./build/src/bitrev-app ${N}`
-Where $N = 2^k$.
-
-`./build/src/br-fft-app ${N} ${numbers file}`
-Where the numbers file is a file of N complex numbers.
-
-`./build/src/benchmark`
-The timing.txt will be placed in the current directory.
+`./build/src/lowpass <coefficient a> <iteration_count> <file.wav>`
+$$
+    y_t = x_t + a x_{t-1}
+$$
 
 ## Dependencies
 - CMake
@@ -29,9 +25,6 @@ cmake --build build
 ``
 Then run the binaries generated in the `./build/` directory.
 There are also some precompiled mac executables in the executables folder for your convenience.
-
-## Testing script
-Additionally, one can just run all the sample tests by doing `./tests/scripts/test-all.sh` on UNIX systems.
 
 ## Text file numbers:
 The accepted formats for the numbers are:
