@@ -40,6 +40,11 @@
 
             texliveFull
             texlab
+
+            ffmpeg
+            termusic
+
+            xxd
           ];
         };
       }
