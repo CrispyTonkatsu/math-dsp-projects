@@ -1,0 +1,128 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+
+\newcommand{\transf}[1]{\mathcal H(#1)}
+\newcommand{\freq}[1]{H(#1)}
+\newcommand{\magres}[1]{|\freq{#1}|}
+
+\begin{document}
+\title{Mapping Filters from Analog to Digital with Tustin's Method}
+\author{Edgar Jose Donoso Mansilla}
+\date{}
+\maketitle
+
+% TODO: Review the paper and ask about the topic to the prof
+
+\section{Motivation}
+Real world systems are often continuous, therefore, there is a lot of pre-existing
+literature and techniques to handle continuous signals via continuous means
+(e.g. analog circuit based filters). As computing and integrated chips became
+a more widely used tool, there was a need to convert some well studied filters
+and systems to discrete time despite there being DSP native techniques. The key
+goal of these conversion methods is to map values from the $s$-plane that is obtained
+via Laplace transforms to the $z$-plane that is obtained from the $z$-transform.
+
+\section{Tustin's Method Overview}
+Tustin's Method, also known as the Bilinear Transform, is a method for converting
+analog filters to digital filters. The formal derivation of this method is as
+follows:
+
+Let $s \in \mathbb C$ and $T$ be the integration step (to be discussed later).
+$$
+	z = e^{sT} = \frac{e^{sT/2}}{e^{-sT/2}}
+$$
+
+From here, we can approximate the exponential using the Taylor series of $e^x$:
+$$
+	e^{sT/2} = 1 + \frac{sT/2}{1!} + \frac{(sT/2)^2}{2!} + \frac{(sT/2)^3}{3!} + \dots
+$$
+
+By taking the first 2 terms we can obtain:
+$$
+	z = \frac{1 + sT/2}{1 - sT/2} \rightarrow s = \frac{2(z - 1)}{T(z + 1)}
+$$
+
+\subsection{Understanding the meaning of $T$}
+While this shows the algebraic manipulation that explains the mapping, it is
+better understood by looking at integration that this approximation is doing:
+
+Let a continuous system:
+$$
+	H(s) = 1/s
+$$
+
+Taking the inverse Laplace transform of that system:
+$$
+	y'(t) = x(t)
+$$
+
+Integrate to solve for $y(t)$:
+$$
+	y(t) = \int_0^t{x(t) \, dt}
+$$
+
+Then redefine the system as steps based on $T$:
+$$
+	y(kT) = \int_{kT-T}^{kT}{x(t) \, dt} + y(kT - T)
+$$
+
+Recall Trapezoidal Integration:
+$$
+	\int_a^b{f(x) \, dx} \approx (b - a)\frac{f(a) + f(b)}{2}
+$$
+
+And thus the following discrete system is obtained:
+$$
+	y_k = \frac{T}{2}(x_{kT} + x_{kT - T}) + y_{kT - T}
+$$
+
+After getting the $z$-transform of this system\footnote{Or in the context of
+	lecture, obtain the discrete transfer function $\mathcal H(z)$}:
+$$
+	\transf{z} = \frac{T (z + 1)}{2 (z - 1)}
+$$
+
+We also know that this is supposed to be the same as the transfer function
+of our continuous system, therefore:
+$$
+	\frac{1}{s} \approx \frac{T (z + 1)}{2 (z - 1)} \rightarrow z \approx \frac{1 + sT/2}{1 - sT/2}
+$$
+
+\section{Driving an oscillation through digital input}
+A common classical control theory problem involves manipulating the frequency of
+an oscillating mass. However, sometimes the controller has to be implemented through
+an IC or microcontroller. For example, this system with input force $x(t)$:
+$$
+	y''(t) = x(t) \rightarrow H(s) = \frac{1}{s^2}
+$$
+It doesn't oscillate at all, therefore the input force can be used as a controller.
+
+Then we can use Tustin's Method to discretize our system:
+$$
+	\transf{z} = \frac{4(z - 1)^2}{T^2(z + 1)^2}
+$$
+
+Notice how the system went from having a pole at $s = 0$ to haivng poles at
+$z = \pm 1$. This is one of the side-effects of using Tustin's method.
+
+After rearranging to get the digital system\footnote{This technique could be used
+	to obtain synthesized instruments through physical principles. Albeit it gets
+	complicated past the simple oscillation case}:
+$$
+	y_t = \frac{T^2}{4}(x_t + 2x_{t-1} + x_{t-2}) + 2y_{t-1} - y_{t-2}
+$$
+
+In the ideal case an arbitrary force can be applied to the controller at each
+time-step, a simple control law to get the desired frequency $r$ can be obtained:
+$$
+	x_t = C_p(r - y_{t-1}) - C_d(\frac{y_{t-1} + y_{t-2}}{2})
+$$
+
+In this controller we are using $C_p$ to approach our desired frequency while
+$C_d$ will dampen the system. Further analysis would be needed to prove the
+system remains stable under various coefficient values, however, that is
+beyond the scope of this short paper.
+
+\end{document}
