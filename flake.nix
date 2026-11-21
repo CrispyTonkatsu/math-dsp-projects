@@ -42,7 +42,6 @@
             texlab
 
             ffmpeg
-            termusic
 
             xxd
           ];

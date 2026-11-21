@@ -6,8 +6,8 @@ cmake --build build
 
 for file in ./test-data/*; do
 	if [ -f "$file" ]; then
-		./format_match.sh "$file" "mono-$file"
-		./build/src/lowpass "0.2" "10" "mono-$file"
+		./format_match.sh "$file" "output.wav"
+		./build/src/lowpass "0.2" "10000" "filtered-output.wav"
 	fi
 done
 
