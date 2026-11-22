@@ -8,9 +8,10 @@
 #include <iostream>
 #include <optional>
 
-std::optional<std::vector<Complex>>
-utils::read_file(std::string_view file_path,
-                 std::optional<std::size_t> read_until) {
+std::optional<std::vector<Complex>> utils::read_file(
+  std::string_view file_path,
+  std::optional<std::size_t> read_until
+) {
   std::ifstream file{file_path.data()};
 
   if (!file.is_open()) {
@@ -47,25 +48,35 @@ utils::read_file(std::string_view file_path,
   return output;
 }
 
-template <typename T>
-std::optional<T> skip_until_chunk(std::fstream &stream, std::string_view type,
-                                  bool copy_data = false) {
+template<typename T>
+std::optional<T> skip_until_chunk(
+  std::fstream& stream,
+  std::string_view type,
+  bool copy_data = false
+) {
   WavData::ChunkHeader header{};
 
-  while (stream.read(reinterpret_cast<char *>(&header),
-                     sizeof(WavData::ChunkHeader))) {
+  while (
+    stream.read(reinterpret_cast<char*>(&header), sizeof(WavData::ChunkHeader))
+  ) {
     if (std::memcmp(&header.type, type.data(), 4) == 0) {
       T output;
 
-      memcpy(reinterpret_cast<std::byte *>(&output),
-             reinterpret_cast<std::byte *>(&header), sizeof(header));
+      memcpy(
+        reinterpret_cast<std::byte*>(&output),
+        reinterpret_cast<std::byte*>(&header),
+        sizeof(header)
+      );
 
       if (copy_data) {
-        char *chunk_data{new char[header.size]};
+        char* chunk_data{new char[header.size]};
         stream.read(chunk_data, header.size);
 
-        memcpy(reinterpret_cast<std::byte *>(&output) + sizeof(header),
-               chunk_data, header.size);
+        memcpy(
+          reinterpret_cast<std::byte*>(&output) + sizeof(header),
+          chunk_data,
+          header.size
+        );
 
         delete[] chunk_data;
       }
@@ -79,10 +90,38 @@ std::optional<T> skip_until_chunk(std::fstream &stream, std::string_view type,
   return std::nullopt;
 }
 
+WavData WavData::create_new(std::vector<Complex>&& values) {
+  WavData out{};
+  std::memcpy(&out.riff.header.type, "RIFF", 4);
+  out.riff.header.size = sizeof(RiffChunk) - sizeof(ChunkHeader);
+  std::memcpy(&out.riff.file_format, "WAVE", 4);
+
+  constexpr uint32_t sample_rate{44100};
+  constexpr uint16_t channels{1};
+  constexpr uint16_t bits_per_sample{16};
+
+  std::memcpy(&out.fmt.header.type, "fmt ", 4);
+  out.fmt.header.size = sizeof(FormatChunk) - sizeof(ChunkHeader);
+
+  out.fmt.audio_format = 1;
+  out.fmt.sample_rate = sample_rate;
+  out.fmt.channel_count = channels;
+  out.fmt.bits_per_sample = bits_per_sample;
+  out.fmt.bytes_per_block = channels * (bits_per_sample / 8);
+  out.fmt.bytes_per_second = sample_rate * out.fmt.bytes_per_block;
+
+  std::memcpy(&out.data_info.header.type, "data", 4);
+  out.data_info.header.size =
+    sizeof(DataChunk) - sizeof(ChunkHeader) + values.size() * 2;
+
+  out.samples = std::move(values);
+  return out;
+}
+
 std::optional<WavData> WavData::read_wav(std::string_view file_path) {
   std::fstream file{
-      file_path.data(),
-      std::ios_base::binary | std::ios_base::in,
+    file_path.data(),
+    std::ios_base::binary | std::ios_base::in,
   };
 
   if (!file.is_open()) {
@@ -92,15 +131,16 @@ std::optional<WavData> WavData::read_wav(std::string_view file_path) {
 
   WavData output{};
 
-  file.read(reinterpret_cast<char *>(&output.riff), 12);
-  if (std::memcmp(&output.riff.header.type, "RIFF", 4) != 0 ||
-      std::memcmp(&output.riff.file_format, "WAVE", 4) != 0) {
+  file.read(reinterpret_cast<char*>(&output.riff), 12);
+  if (std::memcmp(&output.riff.header.type, "RIFF", 4) != 0
+      || std::memcmp(&output.riff.file_format, "WAVE", 4) != 0) {
     std::cerr << "Invalid RIFF for file: " << file_path << "\n";
     return std::nullopt;
   }
 
   std::optional<FormatChunk> fmt_opt{
-      skip_until_chunk<FormatChunk>(file, "fmt ", true)};
+    skip_until_chunk<FormatChunk>(file, "fmt ", true)
+  };
   if (!fmt_opt.has_value()) {
     std::cerr << "Could not find the FMT for the file: " << file_path << "\n";
     return std::nullopt;
@@ -143,39 +183,51 @@ std::optional<WavData> WavData::read_wav(std::string_view file_path) {
 
   for (std::size_t i{0}; i < short_count; i++) {
     std::int16_t sample{0};
-    file.read(reinterpret_cast<char *>(&sample), sizeof(std::int16_t));
+    file.read(reinterpret_cast<char*>(&sample), sizeof(std::int16_t));
 
-    output.samples.push_back(Complex::from_cartesian(
-        static_cast<double>(sample) / max_amplitude, 0.0f));
+    output.samples.push_back(
+      Complex::from_cartesian(static_cast<double>(sample) / max_amplitude, 0.0f)
+    );
   }
 
   return output;
 }
 
-void WavData::write_wav(std::string_view file_name, const WavData &wav_data) {
+void WavData::write_wav(std::string_view file_name, const WavData& wav_data) {
   std::fstream file{
-      file_name.data(),
-      std::ios_base::binary | std::ios_base::out,
+    file_name.data(),
+    std::ios_base::binary | std::ios_base::out,
   };
 
-  file.write(reinterpret_cast<const char *>(&wav_data.riff),
-             sizeof(wav_data.riff));
-  file.write(reinterpret_cast<const char *>(&wav_data.fmt),
-             sizeof(wav_data.fmt));
+  file.write(
+    reinterpret_cast<const char*>(&wav_data.riff),
+    sizeof(wav_data.riff)
+  );
+  file.write(
+    reinterpret_cast<const char*>(&wav_data.fmt),
+    sizeof(wav_data.fmt)
+  );
 
-  file.write(reinterpret_cast<const char *>(&wav_data.data_info),
-             sizeof(wav_data.data_info));
+  file.write(
+    reinterpret_cast<const char*>(&wav_data.data_info),
+    sizeof(wav_data.data_info)
+  );
 
   constexpr double max_amplitude{1 << 15};
 
   const std::size_t short_count{wav_data.samples.size()};
   for (std::size_t i{0}; i < short_count; i++) {
     const double safe_sample{
-        std::clamp(wav_data.samples[i].get_real(), -1.0, 1.0)};
+      std::clamp(wav_data.samples[i].get_real(), -1.0, 1.0)
+    };
 
     const std::int16_t output_sample{
-        static_cast<std::int16_t>(safe_sample * max_amplitude)};
+      static_cast<std::int16_t>(safe_sample * max_amplitude)
+    };
 
-    file.write(reinterpret_cast<const char *>(&output_sample), sizeof(output_sample));
+    file.write(
+      reinterpret_cast<const char*>(&output_sample),
+      sizeof(output_sample)
+    );
   }
 }
