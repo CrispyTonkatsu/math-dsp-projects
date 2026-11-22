@@ -80,7 +80,11 @@ int main(int argc, char** argv) {
     samples.insert(samples.end(), string.begin(), string.end());
   }
 
-  WavData::write_wav("strings.wav", WavData::create_new(std::move(samples)));
+  WavData::write_wav(
+    std::to_string(static_cast<std::size_t>(start_freq * 100.0))
+      + "strings.wav",
+    WavData::create_new(std::move(samples))
+  );
 
   return 0;
 }
