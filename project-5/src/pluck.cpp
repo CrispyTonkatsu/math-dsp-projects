@@ -8,13 +8,18 @@ std::vector<Complex> play_note(
   const std::size_t sample_rate,
   const double duration,
   const double target_freq,
-  const std::size_t noise_length
+  const double pluck_strength
 ) {
   constexpr uint16_t max_range{15000};
   const std::size_t length{static_cast<std::size_t>(sample_rate * duration)};
 
   std::vector<Complex> samples;
   samples.resize(length);
+
+  const double target_value{(sample_rate / target_freq) - 0.5};
+  const std::size_t L{static_cast<std::size_t>(target_value)};
+
+  const std::size_t noise_length{static_cast<std::size_t>(pluck_strength * L)};
 
   for (std::size_t i{0}; i < noise_length; i++) {
     // TODO: Check that the generation is beind done well
@@ -27,14 +32,12 @@ std::vector<Complex> play_note(
   {
     using namespace filters;
 
-    const double target_value{(sample_rate / target_freq) - 0.5};
-    const std::size_t L{static_cast<std::size_t>(target_value)};
     const double delta{target_value - static_cast<double>(L)};
-
-    // Getting the coefficient from delta
     const double half_omega{
       std::numbers::pi_v<double> * (target_freq / sample_rate)
     };
+
+    // Getting the coefficient from delta
     const double fine_tune{
       std::sin((1 - delta) * half_omega) / std::sin((1 + delta) * half_omega)
     };
@@ -70,7 +73,7 @@ int main(int argc, char** argv) {
     const double target_freq{start_freq * std::pow(2.0, scale[i] / 12.0)};
 
     std::vector<Complex> string{
-      play_note(sample_rate, duration, target_freq, 99)
+      play_note(sample_rate, duration, target_freq, 1.5)
     };
 
     samples.insert(samples.end(), string.begin(), string.end());
