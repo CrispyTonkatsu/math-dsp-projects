@@ -10,7 +10,8 @@ std::vector<Complex> play_note(
   const double target_freq,
   const double pluck_strength
 ) {
-  constexpr uint16_t max_range{15000};
+  constexpr uint16_t max_sample{15000};
+  constexpr uint16_t max_bound{2 * max_sample + 1};
   const std::size_t length{static_cast<std::size_t>(sample_rate * duration)};
 
   std::vector<Complex> samples;
@@ -22,11 +23,11 @@ std::vector<Complex> play_note(
   const std::size_t noise_length{static_cast<std::size_t>(pluck_strength * L)};
 
   for (std::size_t i{0}; i < noise_length; i++) {
-    // TODO: Check that the generation is beind done well
-    int sample{(std::rand() % max_range) - (max_range / 2)};
+    // TODO: probably improve the way the sounds are being generated
+    int sample{(std::rand() % max_bound) - max_sample};
 
     samples[i] =
-      Complex::from_cartesian(static_cast<double>(sample) / max_range, 0.0);
+      Complex::from_cartesian(static_cast<double>(sample) / max_sample, 0.0);
   }
 
   {
@@ -73,7 +74,7 @@ int main(int argc, char** argv) {
     const double target_freq{start_freq * std::pow(2.0, scale[i] / 12.0)};
 
     std::vector<Complex> string{
-      play_note(sample_rate, duration, target_freq, 1.5)
+      play_note(sample_rate, duration, target_freq, 0.5)
     };
 
     samples.insert(samples.end(), string.begin(), string.end());
