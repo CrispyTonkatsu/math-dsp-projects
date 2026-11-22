@@ -1,13 +1,13 @@
-#include <cstddef>
+#include <array>
 #include <iostream>
-#include <ostream>
 #include "filters.hpp"
 #include "utils.hpp"
 
+// TODO: Move this to the library and put it in the music section
 std::vector<Complex> play_note(
   const std::size_t sample_rate,
   const double duration,
-  const double, // target_freq
+  const double target_freq,
   const std::size_t noise_length
 ) {
   constexpr uint16_t max_range{15000};
@@ -17,6 +17,7 @@ std::vector<Complex> play_note(
   samples.resize(length);
 
   for (std::size_t i{0}; i < noise_length; i++) {
+    // TODO: Check that the generation is beind done well
     int sample{(std::rand() % max_range) - (max_range / 2)};
 
     samples[i] =
@@ -26,11 +27,23 @@ std::vector<Complex> play_note(
   {
     using namespace filters;
 
+    const double target_value{(sample_rate / target_freq) - 0.5};
+    const std::size_t L{static_cast<std::size_t>(target_value)};
+    const double delta{target_value - static_cast<double>(L)};
+
+    // Getting the coefficient from delta
+    const double half_omega{
+      std::numbers::pi_v<double> * (target_freq / sample_rate)
+    };
+    const double fine_tune{
+      std::sin((1 - delta) * half_omega) / std::sin((1 + delta) * half_omega)
+    };
+
     apply_filters<LowPass, AllPass, Comb>(
       std::tuple{
         LowPass::Config{.a = 0.5},
-        AllPass::Config{.a = 0.158},
-        Comb::Config{.R = 0.99985, .L = 99},
+        AllPass::Config{.a = fine_tune},
+        Comb::Config{.R = 0.99985, .L = L},
     },
       samples
     );
@@ -39,7 +52,6 @@ std::vector<Complex> play_note(
   return samples;
 }
 
-// TODO: Add input to the app
 int main(int argc, char** argv) {
   if (argc < 2) {
     std::cerr << "Missing starting frequency" << std::endl;
@@ -51,9 +63,18 @@ int main(int argc, char** argv) {
   constexpr std::size_t sample_rate{44100};
   constexpr std::size_t duration{1};
 
-  std::vector<Complex> samples{
-    play_note(sample_rate, duration, start_freq, 99)
-  };
+  const std::array<std::size_t, 8> scale{0, 2, 4, 5, 7, 9, 11, 12};
+
+  std::vector<Complex> samples{};
+  for (std::size_t i{0}; i < 8; i++) {
+    const double target_freq{start_freq * std::pow(2.0, scale[i] / 12.0)};
+
+    std::vector<Complex> string{
+      play_note(sample_rate, duration, target_freq, 99)
+    };
+
+    samples.insert(samples.end(), string.begin(), string.end());
+  }
 
   WavData::write_wav("strings.wav", WavData::create_new(std::move(samples)));
 

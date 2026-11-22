@@ -93,7 +93,7 @@ namespace filters {
 
     struct Config {
       double R{};
-      double L{};
+      std::size_t L{};
     };
 
     void apply_config(const Config config) {
