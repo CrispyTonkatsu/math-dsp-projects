@@ -4,7 +4,6 @@
 #include "filters.hpp"
 #include "utils.hpp"
 
-// TODO: Move this to the library and put it in the music section
 std::vector<Complex> play_note(
   const std::size_t sample_rate,
   const double duration,
@@ -24,7 +23,6 @@ std::vector<Complex> play_note(
   const std::size_t noise_length{static_cast<std::size_t>(pluck_strength * L)};
 
   for (std::size_t i{0}; i < noise_length; i++) {
-    // TODO: probably improve the way the sounds are being generated
     int sample{(std::rand() % max_bound) - max_sample};
 
     samples[i] =
@@ -75,7 +73,7 @@ int main(int argc, char** argv) {
     const double target_freq{start_freq * std::pow(2.0, scale[i] / 12.0)};
 
     std::vector<Complex> string{
-      play_note(sample_rate, duration, target_freq, 0.5)
+      play_note(sample_rate, duration, target_freq, 1.0)
     };
 
     samples.insert(samples.end(), string.begin(), string.end());

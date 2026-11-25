@@ -1,11 +1,8 @@
-# Project 4
-This project is an implementation of a low pass filter
+# Project 5
+This project is an implementation of a plucked string filter
 
 ## Running
-`./build/src/lowpass <coefficient a> <iteration_count> <file.wav>`
-$$
-    y_t = x_t + a x_{t-1}
-$$
+`./build/src/pluck <frequency of scale>`
 
 ## Dependencies
 - CMake
